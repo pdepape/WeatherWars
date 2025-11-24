@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Weather Wars</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0b1530;
+      color: #f5f5f5;
+    }
+
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .game-container {
+      background: #111827;
+      border-radius: 16px;
+      padding: 16px 16px 12px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+      width: 420px;
+      max-width: 95vw;
+      box-sizing: border-box;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+
+    .game-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .stats {
+      text-align: right;
+      font-size: 0.85rem;
+      line-height: 1.3;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tile {
+      background: #1f2937;
+      border-radius: 10px;
+      padding: 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.8rem;
+    }
+
+    .tile.player {
+      background: rgba(22, 163, 74, 0.15);
+      border-color: rgba(22, 163, 74, 0.6);
+    }
+
+    .tile.enemy {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.6);
+    }
+
+    .tile:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .tile-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .tile-prod {
+      font-size: 0.75rem;
+      opacity: 0.9;
+    }
+
+    .tile-effects {
+      margin-top: 3px;
+      font-size: 0.7rem;
+      color: #e5e7eb;
+    }
+
+    .cards {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0 6px;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      flex: 0 0 auto;
+      min-width: 120px;
+      background: #111827;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 0.75rem;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease, background 0.15s ease;
+    }
+
+    .card.selected {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.7);
+      background: rgba(37, 99, 235, 0.2);
+    }
+
+    .card.unaffordable {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .card:hover:not(.unaffordable) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-name {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .card-meta {
+      font-size: 0.7rem;
+      opacity: 0.9;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      gap: 8px;
+    }
+
+    .message {
+      font-size: 0.75rem;
+      opacity: 0.9;
+      min-height: 1.2em;
+    }
+
+    .btn {
+      background: #2563eb;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.1s ease, transform 0.08s ease, box-shadow 0.08s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: #1d4ed8;
+      transform: translateY(-0.5px);
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      opacity: 0.85;
+    }
+
+    .tag span {
+      margin-right: 6px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      padding: 2px 8px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="game-header">
+    <div>
+      <div class="game-title">Weather Wars</div>
+      <div class="tag">
+        <span class="pill">Turn <span id="turnDisplay">1</span> / <span id="maxTurnsDisplay">10</span></span>
+      </div>
+    </div>
+    <div class="stats">
+      <div>💰 You: <span id="playerMoney">0</span></div>
+      <div>💰 Enemy: <span id="enemyMoney">0</span></div>
+      <div>⚡ <span id="weatherPoints">5</span> WP</div>
+    </div>
+  </div>
+
+  <div id="board" class="board"></div>
+
+  <div class="cards" id="cardsRow"></div>
+
+  <div class="footer-row">
+    <div class="message" id="message"></div>
+    <button class="btn" id="endTurnBtn">End Turn</button>
+  </div>
+</div>
+
+<script>
+  // --- GAME STATE ---
+
+  const Owner = {
+    PLAYER: 'player',
+    ENEMY: 'enemy'
+  };
+
+  const BuildingType = {
+    FARM: 'farm',
+    FACTORY: 'factory',
+    WIND: 'wind'
+  };
+
+  let tiles = [];
+  let cards = [];
+  let selectedCardId = null;
+
+  let playerMoney = 0;
+  let enemyMoney = 0;
+  let weatherPoints = 5;
+  let turn = 1;
+  const maxTurns = 10;
+
+
+  // --- INITIALISATION ---
+
+  function initGame() {
+    playerMoney = 0;
+    enemyMoney = 0;
+    weatherPoints = 5;
+    turn = 1;
+    selectedCardId = null;
+
+    // 3x3 board of tiles
+    tiles = [];
+    for (let i = 0; i < 9; i++) {
+      const owner = i < 5 ? Owner.PLAYER : Owner.ENEMY;
+      const buildingType = (i % 3 === 0)
+        ? BuildingType.FARM
+        : (i % 3 === 1)
+          ? BuildingType.FACTORY
+          : BuildingType.WIND;
+
+      tiles.push({
+        id: i,
+        owner,
+        building: {
+          type: buildingType,
+          level: 1
+        },
+        effects: [] // { name, productionMultiplier, remainingTurns }
+      });
+    }
+
+    cards = [
+      {
+        id: 'sunny',
+        name: 'Sunny Boost',
+        cost: 3,
+        durationTurns: 3,
+        productionMultiplier: 1.5,
+        canTargetPlayerTiles: true,
+        canTargetEnemyTiles: false
+      },
+      {
+        id: 'storm',
+        name: 'Storm',
+        cost: 4,
+        durationTurns: 2,
+        productionMultiplier: 0.5,
+        canTargetPlayerTiles: false,
+        canTargetEnemyTiles: true
+      },
+      {
+        id: 'calm',
+        name: 'Calm Skies',
+        cost: 2,
+        durationTurns: 0,
+        productionMultiplier: 1.0,
+        canTargetPlayerTiles: true,
+        canTargetEnemyTiles: true
+      }
+    ];
+
+    renderBoard();
+    renderCards();
+    updateHUD();
+    setMessage('Pick a weather card, then tap a tile.');
+  }
+
+
+  // --- HELPERS ---
+
+  function buildingBaseProduction(building) {
+    if (!building) return 0;
+    switch (building.type) {
+      case BuildingType.FARM:
+        return 20 * building.level;
+      case BuildingType.FACTORY:
+        return 40 * building.level;
+      case BuildingType.WIND:
+        return 10 * building.level;
+      default:
+        return 0;
+    }
+  }
+
+  function tileProduction(tile) {
+    const base = buildingBaseProduction(tile.building);
+    let mult = 1;
+    tile.effects.forEach(e => {
+      mult *= e.productionMultiplier;
+    });
+    return Math.round(base * mult);
+  }
+
+  function ownerLabel(owner) {
+    return owner === Owner.PLAYER ? 'You' : 'Enemy';
+  }
+
+  function buildingLabel(b) {
+    if (!b) return 'Empty';
+    switch (b.type) {
+      case BuildingType.FARM:
+        return 'Farm';
+      case BuildingType.FACTORY:
+        return 'Factory';
+      case BuildingType.WIND:
+        return 'Wind';
+      default:
+        return 'Building';
+    }
+  }
+
+
+  // --- RENDERING ---
+
+  function renderBoard() {
+    const board = document.getElementById('board');
+    board.innerHTML = '';
+
+    tiles.forEach(tile => {
+      const div = document.createElement('div');
+      div.className = 'tile ' + (tile.owner === Owner.PLAYER ? 'player' : 'enemy');
+      div.dataset.tileId = tile.id.toString();
+
+      const title = document.createElement('div');
+      title.className = 'tile-title';
+      title.textContent = ownerLabel(tile.owner) + ' - ' + buildingLabel(tile.building);
+      div.appendChild(title);
+
+      const prod = document.createElement('div');
+      prod.className = 'tile-prod';
+      prod.textContent = 'Prod: ' + tileProduction(tile);
+      div.appendChild(prod);
+
+      if (tile.effects.length > 0) {
+        const eff = document.createElement('div');
+        eff.className = 'tile-effects';
+        eff.textContent = tile.effects.map(e => `${e.name} (${e.remainingTurns})`).join(', ');
+        div.appendChild(eff);
+      }
+
+      div.addEventListener('click', onTileClick);
+      board.appendChild(div);
+    });
+  }
+
+  function renderCards() {
+    const row = document.getElementById('cardsRow');
+    row.innerHTML = '';
+
+    cards.forEach(card => {
+      const cardDiv = document.createElement('div');
+      cardDiv.className = 'card';
+      cardDiv.dataset.cardId = card.id;
+
+      if (card.id === selectedCardId) {
+        cardDiv.classList.add('selected');
+      }
+
+      if (weatherPoints < card.cost) {
+        cardDiv.classList.add('unaffordable');
+      }
+
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'card-name';
+      nameDiv.textContent = card.name;
+      cardDiv.appendChild(nameDiv);
+
+      const metaDiv = document.createElement('div');
+      metaDiv.className = 'card-meta';
+      metaDiv.textContent =
+        `Cost: ${card.cost} ⚡ | x${card.productionMultiplier.toFixed(1)}`
+        + (card.durationTurns > 0 ? ` • ${card.durationTurns} turns` : ' • instant');
+      cardDiv.appendChild(metaDiv);
+
+      cardDiv.addEventListener('click', onCardClick);
+      row.appendChild(cardDiv);
+    });
+  }
+
+  function updateHUD() {
+    document.getElementById('playerMoney').textContent = playerMoney.toString();
+    document.getElementById('enemyMoney').textContent = enemyMoney.toString();
+    document.getElementById('weatherPoints').textContent = weatherPoints.toString();
+    document.getElementById('turnDisplay').textContent = turn.toString();
+    document.getElementById('maxTurnsDisplay').textContent = maxTurns.toString();
+
+    // Also re-render board and cards to update numbers/colors
+    renderBoard();
+    renderCards();
+  }
+
+  function setMessage(text) {
+    document.getElementById('message').textContent = text || '';
+  }
+
+
+  // --- INPUT HANDLERS ---
+
+  function onCardClick(e) {
+    const cardId = e.currentTarget.dataset.cardId;
+    const card = cards.find(c => c.id === cardId);
+    if (!card) return;
+
+    if (weatherPoints < card.cost) {
+      setMessage('Not enough weather points for that card.');
+      return;
+    }
+
+    if (selectedCardId === cardId) {
+      // Deselect if clicked again
+      selectedCardId = null;
+      setMessage('Card deselected.');
+    } else {
+      selectedCardId = cardId;
+      setMessage(`Selected ${card.name}. Tap a tile to cast it.`);
+    }
+
+    updateHUD();
+  }
+
+  function onTileClick(e) {
+    const tileId = parseInt(e.currentTarget.dataset.tileId, 10);
+    const tileIndex = tiles.findIndex(t => t.id === tileId);
+    if (tileIndex === -1) return;
+
+    const tile = tiles[tileIndex];
+    if (!selectedCardId) {
+      setMessage('Select a weather card first.');
+      return;
+    }
+
+    const card = cards.find(c => c.id === selectedCardId);
+    if (!card) return;
+
+    if (weatherPoints < card.cost) {
+      setMessage('Not enough weather points.');
+      return;
+    }
+
+    if (tile.owner === Owner.PLAYER && !card.canTargetPlayerTiles) {
+      setMessage('That card cannot target your own tiles.');
+      return;
+    }
+    if (tile.owner === Owner.ENEMY && !card.canTargetEnemyTiles) {
+      setMessage('That card cannot target enemy tiles.');
+      return;
+    }
+
+    // Apply card
+    if (card.id === 'calm') {
+      tiles[tileIndex].effects = [];
+      setMessage('Calm Skies cleared all effects on that tile.');
+    } else {
+      tiles[tileIndex].effects.push({
+        name: card.name,
+        productionMultiplier: card.productionMultiplier,
+        remainingTurns: card.durationTurns
+      });
+      setMessage(`${card.name} cast on ${ownerLabel(tile.owner)} ${buildingLabel(tile.building)}.`);
+    }
+
+    weatherPoints -= card.cost;
+    selectedCardId = null;
+    updateHUD();
+  }
+
+
+  // --- TURN LOGIC ---
+
+  function endTurn() {
+    // Income for both players
+    const playerIncome = tiles
+      .filter(t => t.owner === Owner.PLAYER)
+      .map(tileProduction)
+      .reduce((a, b) => a + b, 0);
+
+    const enemyIncome = tiles
+      .filter(t => t.owner === Owner.ENEMY)
+      .map(tileProduction)
+      .reduce((a, b) => a + b, 0);
+
+    playerMoney += playerIncome;
+    enemyMoney += enemyIncome;
+
+    // Gain more weather points
+    weatherPoints += 3;
+
+    // Tick effects
+    tiles.forEach(tile => {
+      tile.effects = tile.effects
+        .map(e => ({
+          ...e,
+          remainingTurns: e.remainingTurns - 1
+        }))
+        .filter(e => e.remainingTurns > 0);
+    });
+
+    turn += 1;
+
+    if (turn > maxTurns) {
+      // Game over
+      updateHUD();
+      const result =
+        playerMoney > enemyMoney
+          ? 'You win! 🎉'
+          : (playerMoney < enemyMoney ? 'You lose! 💨' : 'It\'s a tie!');
+
+      setMessage(result + ' Game will reset.');
+      setTimeout(() => {
+        initGame();
+      }, 2000);
+    } else {
+      setMessage(`Turn ended. You earned ${playerIncome}, enemy earned ${enemyIncome}.`);
+      updateHUD();
+    }
+  }
+
+
+  // --- SETUP EVENTS ---
+
+  document.getElementById('endTurnBtn').addEventListener('click', endTurn);
+
+  // Start the game
+  initGame();
+</script>
+</body>
+</html>
