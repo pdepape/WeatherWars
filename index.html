@@ -23,7 +23,7 @@
       border-radius: 16px;
       padding: 16px 16px 12px;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-      width: 420px;
+      width: 600px;
       max-width: 95vw;
       box-sizing: border-box;
     }
@@ -48,20 +48,24 @@
 
     .board {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
       margin-bottom: 12px;
     }
 
     .tile {
       background: #1f2937;
       border-radius: 10px;
-      padding: 6px;
+      padding: 12px;
       text-align: center;
       cursor: pointer;
       transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
       border: 1px solid rgba(148, 163, 184, 0.4);
-      font-size: 0.8rem;
+      font-size: 1rem;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .tile.player {
@@ -81,17 +85,19 @@
 
     .tile-title {
       font-weight: 600;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
+      font-size: 1.1rem;
     }
 
     .tile-prod {
-      font-size: 0.75rem;
+      font-size: 0.95rem;
       opacity: 0.9;
+      margin-bottom: 4px;
     }
 
     .tile-effects {
-      margin-top: 3px;
-      font-size: 0.7rem;
+      margin-top: 6px;
+      font-size: 0.85rem;
       color: #e5e7eb;
     }
 
@@ -259,10 +265,10 @@
     turn = 1;
     selectedCardId = null;
 
-    // 3x3 board of tiles
+    // 5x5 board of tiles
     tiles = [];
-    for (let i = 0; i < 9; i++) {
-      const owner = i < 5 ? Owner.PLAYER : Owner.ENEMY;
+    for (let i = 0; i < 25; i++) {
+      const owner = i < 13 ? Owner.PLAYER : Owner.ENEMY;
       const buildingType = (i % 3 === 0)
         ? BuildingType.FARM
         : (i % 3 === 1)
