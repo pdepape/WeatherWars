@@ -97,28 +97,32 @@
     }
 
     .tile {
-      background: #1f2937;
+      background: linear-gradient(180deg, #0f1724, #111827);
       border-radius: 10px;
       padding: 12px;
-      text-align: center;
+      text-align: left;
       cursor: pointer;
       transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
-      border: 1px solid rgba(148, 163, 184, 0.4);
+      border: 1px solid rgba(148, 163, 184, 0.08);
       font-size: 1rem;
-      min-height: 80px;
+      min-height: 72px;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      position: relative;
+      overflow: hidden;
     }
 
     .tile.player {
-      background: rgba(22, 163, 74, 0.15);
-      border-color: rgba(22, 163, 74, 0.6);
+      border-left: 6px solid rgba(22, 163, 74, 0.9);
+      background: linear-gradient(180deg, rgba(16,185,129,0.03), rgba(15,23,42,0.02));
+      border-color: rgba(22, 163, 74, 0.12);
     }
 
     .tile.enemy {
-      background: rgba(239, 68, 68, 0.15);
-      border-color: rgba(239, 68, 68, 0.6);
+      border-left: 6px solid rgba(239, 68, 68, 0.9);
+      background: linear-gradient(180deg, rgba(239,68,68,0.03), rgba(15,23,42,0.02));
+      border-color: rgba(239, 68, 68, 0.12);
     }
 
     .tile:hover {
@@ -128,20 +132,59 @@
 
     .tile-title {
       font-weight: 600;
-      margin-bottom: 4px;
-      font-size: 1.1rem;
+      margin-bottom: 6px;
+      font-size: 1.02rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .tile-prod {
-      font-size: 0.95rem;
-      opacity: 0.9;
+      font-size: 0.92rem;
+      opacity: 0.8;
       margin-bottom: 4px;
+      color: #cbd5e1;
     }
 
     .tile-effects {
       margin-top: 6px;
       font-size: 0.85rem;
       color: #e5e7eb;
+    }
+
+    /* Owner badge + building icon */
+    .owner-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.72rem;
+      color: #e6edf3;
+      backdrop-filter: blur(2px);
+    }
+
+    .owner-dot {
+      width: 10px;
+      height: 10px;
+      display: inline-block;
+      border-radius: 50%;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.25) inset;
+    }
+
+    .owner-dot.player { background: rgba(34,197,94,0.95); }
+    .owner-dot.enemy  { background: rgba(239,68,68,0.95); }
+
+    .building-icon {
+      font-size: 1.12rem;
+      margin-right: 8px;
+      display: inline-block;
+      vertical-align: middle;
     }
 
     .cards {
@@ -431,6 +474,17 @@
     }
   }
 
+  // small helper to show a building icon alongside the title
+  function buildingIcon(b) {
+    if (!b) return '⬜';
+    switch (b.type) {
+      case BuildingType.FARM: return '🌾';
+      case BuildingType.FACTORY: return '🏭';
+      case BuildingType.WIND: return '💨';
+      default: return '🏗️';
+    }
+  }
+
 
   // --- RENDERING ---
 
@@ -443,9 +497,28 @@
       div.className = 'tile ' + (tile.owner === Owner.PLAYER ? 'player' : 'enemy');
       div.dataset.tileId = tile.id.toString();
 
+      // owner badge (small pill in top-right)
+      const badge = document.createElement('div');
+      badge.className = 'owner-badge';
+      const dot = document.createElement('span');
+      dot.className = 'owner-dot ' + (tile.owner === Owner.PLAYER ? 'player' : 'enemy');
+      badge.appendChild(dot);
+      const ownerText = document.createElement('span');
+      ownerText.className = 'owner-text';
+      ownerText.textContent = ownerLabel(tile.owner);
+      badge.appendChild(ownerText);
+      div.appendChild(badge);
+
+      // title with building icon + name (no dash)
       const title = document.createElement('div');
       title.className = 'tile-title';
-      title.textContent = ownerLabel(tile.owner) + ' - ' + buildingLabel(tile.building);
+      const icon = document.createElement('span');
+      icon.className = 'building-icon';
+      icon.textContent = buildingIcon(tile.building);
+      title.appendChild(icon);
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = buildingLabel(tile.building);
+      title.appendChild(nameSpan);
       div.appendChild(title);
 
       const prod = document.createElement('div');
