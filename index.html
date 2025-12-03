@@ -14,8 +14,10 @@
       margin: 0;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       min-height: 100vh;
+      gap: 24px;
+      padding: 16px;
     }
 
     .game-container {
@@ -26,6 +28,47 @@
       width: 600px;
       max-width: 95vw;
       box-sizing: border-box;
+      flex-shrink: 0;
+    }
+
+    .sidebar-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #f5f5f5;
+    }
+
+    .building-info {
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    .building-info:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .building-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+      color: #3b82f6;
+    }
+
+    .building-desc {
+      font-size: 0.8rem;
+      opacity: 0.85;
+      line-height: 1.4;
+      color: #d1d5db;
+    }
+
+    .building-prod {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      margin-top: 4px;
+      font-style: italic;
     }
 
     .game-header {
@@ -206,6 +249,28 @@
   </style>
 </head>
 <body>
+<div class="sidebar">
+  <div class="sidebar-title">Buildings</div>
+  
+  <div class="building-info">
+    <div class="building-name">🌾 Farm</div>
+    <div class="building-desc">Produces food and resources. Steady, reliable income.</div>
+    <div class="building-prod">Production: 20 × level</div>
+  </div>
+
+  <div class="building-info">
+    <div class="building-name">🏭 Factory</div>
+    <div class="building-desc">Industrial production. Generates the highest output but affected by weather.</div>
+    <div class="building-prod">Production: 40 × level</div>
+  </div>
+
+  <div class="building-info">
+    <div class="building-name">💨 Wind</div>
+    <div class="building-desc">Renewable energy. Minimal output, but stable in harsh weather.</div>
+    <div class="building-prod">Production: 10 × level</div>
+  </div>
+</div>
+
 <div class="game-container">
   <div class="game-header">
     <div>
