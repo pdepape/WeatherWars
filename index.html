@@ -369,6 +369,64 @@
         text-align: center;
       }
     }
+
+    @media (max-width: 414px) { /* iPhone 6/7/8 Plus, iPhone X */
+      body {
+        padding: 10px;
+      }
+
+      .game-container {
+        padding: 14px;
+      }
+
+      .sidebar {
+        padding: 8px;
+        margin-bottom: 16px;
+      }
+
+      .board {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .tile {
+        font-size: 0.8rem;
+        padding: 8px;
+      }
+
+      .btn {
+        font-size: 0.7rem;
+        padding: 5px 8px;
+      }
+
+      .game-title {
+        font-size: 1.1rem;
+      }
+
+      .stats {
+        font-size: 0.75rem;
+      }
+    }
+
+    @media (max-width: 375px) { /* iPhone 6/7/8, iPhone SE */
+      .tile {
+        font-size: 0.75rem;
+        padding: 6px;
+      }
+
+      .btn {
+        font-size: 0.65rem;
+        padding: 4px 6px;
+      }
+
+      .game-title {
+        font-size: 1rem;
+      }
+
+      .stats {
+        font-size: 0.7rem;
+      }
+    }
   </style>
 </head>
 <body>
