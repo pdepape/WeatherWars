@@ -302,6 +302,53 @@
       border: 1px solid rgba(148, 163, 184, 0.6);
     }
 
+    .character-select {
+      text-align: center;
+    }
+
+    .character-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .character-card {
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      width: 150px;
+      text-align: center;
+    }
+
+    .character-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .character-card.selected {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.7);
+      background: rgba(37, 99, 235, 0.2);
+    }
+
+    .character-panels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .player-panel, .enemy-panel {
+      width: 45%;
+      padding: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.9);
+      color: #f5f5f5;
+    }
+
     @media (max-width: 768px) {
       body {
         flex-direction: column;
@@ -501,13 +548,16 @@
   let turn = 1;
   const maxTurns = 10;
 
+  let selectedPlayerCharacter = null;
+  let selectedEnemyCharacter = null;
+
 
   // --- INITIALISATION ---
 
   function initGame() {
     playerMoney = 0;
     enemyMoney = 0;
-    weatherPoints = 5;
+    weatherPoints = 15; // Start with 15 weather points
     turn = 1;
     selectedCardId = null;
 
@@ -533,7 +583,15 @@
       });
     }
 
-    cards = [
+    randomizeCards();
+    renderBoard();
+    renderCards();
+    updateHUD();
+    setMessage('Pick a weather card, then tap a tile.');
+  }
+
+  function randomizeCards() {
+    const allCards = [
       {
         id: 'sunny',
         name: 'Sunny Boost',
@@ -560,13 +618,92 @@
         productionMultiplier: 1.0,
         canTargetPlayerTiles: true,
         canTargetEnemyTiles: true
+      },
+      {
+        id: 'rain',
+        name: 'Rainfall',
+        cost: 3,
+        durationTurns: 2,
+        productionMultiplier: 1.2,
+        canTargetPlayerTiles: true,
+        canTargetEnemyTiles: true
+      },
+      {
+        id: 'drought',
+        name: 'Drought',
+        cost: 5,
+        durationTurns: 3,
+        productionMultiplier: 0.8,
+        canTargetPlayerTiles: false,
+        canTargetEnemyTiles: true
+      },
+      {
+        id: 'hail',
+        name: 'Hailstorm',
+        cost: 4,
+        durationTurns: 2,
+        productionMultiplier: 0.6,
+        canTargetPlayerTiles: false,
+        canTargetEnemyTiles: true
+      },
+      {
+        id: 'fog',
+        name: 'Fog',
+        cost: 2,
+        durationTurns: 1,
+        productionMultiplier: 0.9,
+        canTargetPlayerTiles: true,
+        canTargetEnemyTiles: true
+      },
+      {
+        id: 'heatwave',
+        name: 'Heatwave',
+        cost: 6,
+        durationTurns: 3,
+        productionMultiplier: 0.7,
+        canTargetPlayerTiles: false,
+        canTargetEnemyTiles: true
+      },
+      {
+        id: 'blizzard',
+        name: 'Blizzard',
+        cost: 5,
+        durationTurns: 3,
+        productionMultiplier: 0.5,
+        canTargetPlayerTiles: false,
+        canTargetEnemyTiles: true
+      },
+      {
+        id: 'lightning',
+        name: 'Lightning Strike',
+        cost: 4,
+        durationTurns: 1,
+        productionMultiplier: 0.4,
+        canTargetPlayerTiles: false,
+        canTargetEnemyTiles: true
+      },
+      {
+        id: 'tornado',
+        name: 'Tornado',
+        cost: 7,
+        durationTurns: 2,
+        productionMultiplier: 0.3,
+        canTargetPlayerTiles: false,
+        canTargetEnemyTiles: true
+      },
+      {
+        id: 'eclipse',
+        name: 'Eclipse',
+        cost: 6,
+        durationTurns: 2,
+        productionMultiplier: 0.6,
+        canTargetPlayerTiles: true,
+        canTargetEnemyTiles: true
       }
     ];
 
-    renderBoard();
-    renderCards();
-    updateHUD();
-    setMessage('Pick a weather card, then tap a tile.');
+    // Shuffle and pick 3 random cards
+    cards = allCards.sort(() => 0.5 - Math.random()).slice(0, 3);
   }
 
 
@@ -817,7 +954,7 @@
     enemyMoney += enemyIncome;
 
     // Gain more weather points
-    weatherPoints += 3;
+    weatherPoints += 13; // Original 3 + 10 more
 
     // Tick effects
     tiles.forEach(tile => {
@@ -828,6 +965,9 @@
         }))
         .filter(e => e.remainingTurns > 0);
     });
+
+    // Randomize cards for the next turn
+    randomizeCards();
 
     turn += 1;
 
@@ -854,8 +994,152 @@
 
   document.getElementById('endTurnBtn').addEventListener('click', endTurn);
 
-  // Start the game
-  initGame();
+
+  function showCharacterSelectScreen() {
+    const gameContainer = document.querySelector('.game-container');
+    gameContainer.innerHTML = `
+      <div class="character-select">
+        <h2>Select Your Character</h2>
+        <div class="character-list">
+          ${Characters.map((char, index) => `
+            <div class="character-card" data-index="${index}">
+              <h3>${char.name}</h3>
+              <p>${char.city}</p>
+              <p>${char.power}</p>
+            </div>
+          `).join('')}
+        </div>
+        <button class="btn" id="startGameBtn" disabled>Start Game</button>
+      </div>
+    `;
+
+    document.querySelectorAll('.character-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        const index = parseInt(e.currentTarget.dataset.index, 10);
+        selectedPlayerCharacter = Characters[index];
+        selectedEnemyCharacter = Characters[Math.floor(Math.random() * Characters.length)];
+        document.querySelectorAll('.character-card').forEach(c => c.classList.remove('selected'));
+        e.currentTarget.classList.add('selected');
+        document.getElementById('startGameBtn').disabled = false;
+      });
+    });
+
+    document.getElementById('startGameBtn').addEventListener('click', startGame);
+  }
+
+  function startGame() {
+    const gameContainer = document.querySelector('.game-container');
+    gameContainer.innerHTML = `
+      <div class="character-panels">
+        <div class="player-panel">
+          <h3>${selectedPlayerCharacter.name}</h3>
+          <p>${selectedPlayerCharacter.city}</p>
+          <p>${selectedPlayerCharacter.power}</p>
+        </div>
+        <div class="enemy-panel">
+          <h3>${selectedEnemyCharacter.name}</h3>
+          <p>${selectedEnemyCharacter.city}</p>
+          <p>${selectedEnemyCharacter.power}</p>
+        </div>
+      </div>
+      <div id="board" class="board"></div>
+      <div class="footer-row">
+        <button class="btn" id="restartGameBtn">Restart Game</button>
+        <button class="btn" id="endGameBtn">End Game</button>
+      </div>
+    `;
+
+    document.getElementById('restartGameBtn').addEventListener('click', () => {
+      selectedPlayerCharacter = null;
+      selectedEnemyCharacter = null;
+      showCharacterSelectScreen();
+    });
+
+    document.getElementById('endGameBtn').addEventListener('click', () => {
+      alert('Game Over!');
+      selectedPlayerCharacter = null;
+      selectedEnemyCharacter = null;
+      showCharacterSelectScreen();
+    });
+
+    initGame();
+  }
+
+  // Initialize the game with the character selection screen
+  showCharacterSelectScreen();
+
+  const Characters = [
+    {
+      name: 'Ava Storm',
+      city: 'New York',
+      power: 'Hurricane Control',
+      description: 'Can summon hurricanes to devastate enemy resources.'
+    },
+    {
+      name: 'Liam Frost',
+      city: 'Moscow',
+      power: 'Blizzard Summoning',
+      description: 'Unleashes blizzards to freeze enemy production.'
+    },
+    {
+      name: 'Sophia Ray',
+      city: 'Los Angeles',
+      power: 'Solar Flare',
+      description: 'Boosts production with intense solar energy.'
+    },
+    {
+      name: 'Ethan Thunder',
+      city: 'Tokyo',
+      power: 'Lightning Strike',
+      description: 'Strikes enemy tiles with powerful lightning bolts.'
+    },
+    {
+      name: 'Isabella Rain',
+      city: 'London',
+      power: 'Rainfall Manipulation',
+      description: 'Increases crop production with controlled rainfall.'
+    },
+    {
+      name: 'Noah Gale',
+      city: 'Chicago',
+      power: 'Tornado Creation',
+      description: 'Creates tornadoes to disrupt enemy operations.'
+    },
+    {
+      name: 'Mia Heatwave',
+      city: 'Sydney',
+      power: 'Heatwave Amplification',
+      description: 'Weakens enemy tiles with extreme heat.'
+    },
+    {
+      name: 'Oliver Fog',
+      city: 'San Francisco',
+      power: 'Fog Generation',
+      description: 'Covers tiles in fog to obscure enemy vision.'
+    },
+    {
+      name: 'Charlotte Calm',
+      city: 'Paris',
+      power: 'Weather Stabilization',
+      description: 'Neutralizes all weather effects on the board.'
+    },
+    {
+      name: 'James Eclipse',
+      city: 'Cairo',
+      power: 'Eclipse Control',
+      description: 'Casts an eclipse to weaken all enemy tiles temporarily.'
+    }
+  ];
+
+  function displayCharacters() {
+    console.log('Available Characters:');
+    Characters.forEach(character => {
+      console.log(`${character.name} (${character.city}): ${character.power} - ${character.description}`);
+    });
+  }
+
+  // Call this function to log characters to the console for debugging
+  displayCharacters();
 </script>
 </body>
 </html>
