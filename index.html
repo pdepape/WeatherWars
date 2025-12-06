@@ -306,49 +306,67 @@
       body {
         flex-direction: column;
         align-items: center;
-        padding: 8px;
+        padding: 12px;
       }
 
       .game-container {
         width: 100%;
         max-width: none;
-        padding: 12px;
+        padding: 16px;
       }
 
       .sidebar {
         width: 100%;
-        margin-bottom: 16px;
+        margin-bottom: 20px;
+        padding: 12px;
       }
 
       .board {
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: 16px;
       }
 
       .cards {
         flex-wrap: wrap;
         justify-content: center;
+        gap: 12px;
       }
 
       .card {
-        min-width: 100px;
-        margin: 4px;
+        min-width: 110px;
+        margin: 6px;
+        padding: 8px;
       }
     }
 
     @media (max-width: 480px) {
       .board {
         grid-template-columns: 1fr;
+        gap: 12px;
       }
 
       .tile {
-        font-size: 0.9rem;
-        padding: 12px;
+        font-size: 0.85rem;
+        padding: 10px;
       }
 
       .btn {
-        font-size: 0.7rem;
-        padding: 4px 8px;
+        font-size: 0.75rem;
+        padding: 6px 10px;
+      }
+
+      .sidebar {
+        padding: 10px;
+      }
+
+      .game-title {
+        font-size: 1.2rem;
+        text-align: center;
+      }
+
+      .stats {
+        font-size: 0.8rem;
+        text-align: center;
       }
     }
   </style>
