@@ -163,6 +163,29 @@
       color: #e5e7eb;
     }
 
+    .building-stats {
+      display: flex;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: #bcd3f8;
+      margin-top: 6px;
+      opacity: 0.95;
+    }
+
+    .hp-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .hp-fill {
+      height: 100%;
+      background: linear-gradient(90deg,#34d399,#10b981);
+      transition: width 0.18s ease;
+    }
+
     /* Owner badge + building icon */
     .owner-badge {
       position: absolute;
@@ -315,14 +338,32 @@
 
   <div class="building-info">
     <div class="building-name">🏭 Factory</div>
-    <div class="building-desc">Industrial production. Generates the highest output but affected by weather.</div>
-    <div class="building-prod">Production: 40 × level</div>
+    <div class="building-desc">Industrial production. Generates high output but affected by weather.</div>
+    <div class="building-prod">Production: 40 × level • Maint: 3 × level • Sensitivity: high</div>
   </div>
 
   <div class="building-info">
     <div class="building-name">💨 Wind</div>
-    <div class="building-desc">Renewable energy. Minimal output, but stable in harsh weather.</div>
-    <div class="building-prod">Production: 10 × level</div>
+    <div class="building-desc">Renewable energy. Minimal output, but reliable in some conditions.</div>
+    <div class="building-prod">Production: 10 × level • Maint: 1 × level • Sensitivity: medium</div>
+  </div>
+
+  <div class="building-info">
+    <div class="building-name">🔆 Solar</div>
+    <div class="building-desc">Solar arrays produce steadily during clear turns; low maintenance.</div>
+    <div class="building-prod">Production: 25 × level • Maint: 1 × level • Sensitivity: low</div>
+  </div>
+
+  <div class="building-info">
+    <div class="building-name">⛏️ Mine</div>
+    <div class="building-desc">Resource extraction with decent output and medium upkeep.</div>
+    <div class="building-prod">Production: 30 × level • Maint: 2 × level • Sensitivity: medium</div>
+  </div>
+
+  <div class="building-info">
+    <div class="building-name">🔬 Lab</div>
+    <div class="building-desc">Research facility: lower base output but useful for upgrades (future).</div>
+    <div class="building-prod">Production: 15 × level • Maint: 2 × level • Sensitivity: low</div>
   </div>
 </div>
 
@@ -362,7 +403,10 @@
   const BuildingType = {
     FARM: 'farm',
     FACTORY: 'factory',
-    WIND: 'wind'
+    WIND: 'wind',
+    SOLAR: 'solar',
+    MINE: 'mine',
+    LAB: 'lab'
   };
 
   let tiles = [];
@@ -390,19 +434,21 @@
     for (let i = 0; i < 16; i++) {
       // balanced: first half -> player, second half -> enemy
       const owner = i < 8 ? Owner.PLAYER : Owner.ENEMY;
-      const buildingType = (i % 3 === 0)
-        ? BuildingType.FARM
-        : (i % 3 === 1)
-          ? BuildingType.FACTORY
-          : BuildingType.WIND;
+      // cycle through the available building types for more variety
+      const types = [
+        BuildingType.FARM,
+        BuildingType.FACTORY,
+        BuildingType.WIND,
+        BuildingType.SOLAR,
+        BuildingType.MINE,
+        BuildingType.LAB
+      ];
+      const buildingType = types[i % types.length];
 
       tiles.push({
         id: i,
         owner,
-        building: {
-          type: buildingType,
-          level: 1
-        },
+        building: createBuilding(buildingType, 1),
         effects: [] // { name, productionMultiplier, remainingTurns }
       });
     }
@@ -414,6 +460,7 @@
         cost: 3,
         durationTurns: 3,
         productionMultiplier: 1.5,
+        isBeneficial: true,
         canTargetPlayerTiles: true,
         canTargetEnemyTiles: false
       },
@@ -423,6 +470,8 @@
         cost: 4,
         durationTurns: 2,
         productionMultiplier: 0.5,
+        isHarmful: true,
+        damageBase: 12,
         canTargetPlayerTiles: false,
         canTargetEnemyTiles: true
       },
@@ -448,15 +497,48 @@
 
   function buildingBaseProduction(building) {
     if (!building) return 0;
-    switch (building.type) {
+    const stats = getBuildingStats(building.type, building.level);
+    return Math.round(stats.production);
+  }
+
+  // Return derived stats for each building type (production, maintenance, durability, sensitivity)
+  function getBuildingStats(type, level = 1) {
+    switch (type) {
       case BuildingType.FARM:
-        return 20 * building.level;
+        return { production: 20 * level, maintenance: 1 * level, durability: 80 + 5 * level, sensitivity: 'low' };
       case BuildingType.FACTORY:
-        return 40 * building.level;
+        return { production: 40 * level, maintenance: 3 * level, durability: 100 + 10 * level, sensitivity: 'high' };
       case BuildingType.WIND:
-        return 10 * building.level;
+        return { production: 10 * level, maintenance: 1 * level, durability: 60 + 4 * level, sensitivity: 'medium' };
+      case BuildingType.SOLAR:
+        return { production: 25 * level, maintenance: 1 * level, durability: 70 + 6 * level, sensitivity: 'low' };
+      case BuildingType.MINE:
+        return { production: 30 * level, maintenance: 2 * level, durability: 90 + 8 * level, sensitivity: 'medium' };
+      case BuildingType.LAB:
+        return { production: 15 * level, maintenance: 2 * level, durability: 50 + 5 * level, sensitivity: 'low' };
       default:
-        return 0;
+        return { production: 0, maintenance: 0, durability: 0, sensitivity: 'none' };
+    }
+  }
+
+  function createBuilding(type, level = 1) {
+    const stats = getBuildingStats(type, level);
+    return {
+      type,
+      level,
+      maintenance: stats.maintenance,
+      durability: stats.durability,
+      weatherSensitivity: stats.sensitivity
+    };
+  }
+
+  // Map sensitivity string to a numeric factor used to scale card effects and damage
+  function sensitivityFactor(sens) {
+    switch ((sens || '').toLowerCase()) {
+      case 'low': return 0.8;    // reduces impact
+      case 'medium': return 1.0; // normal impact
+      case 'high': return 1.2;   // increases impact
+      default: return 1.0;
     }
   }
 
@@ -482,6 +564,12 @@
         return 'Factory';
       case BuildingType.WIND:
         return 'Wind';
+      case BuildingType.SOLAR:
+        return 'Solar';
+      case BuildingType.MINE:
+        return 'Mine';
+      case BuildingType.LAB:
+        return 'Lab';
       default:
         return 'Building';
     }
@@ -494,6 +582,9 @@
       case BuildingType.FARM: return '🌾';
       case BuildingType.FACTORY: return '🏭';
       case BuildingType.WIND: return '💨';
+      case BuildingType.SOLAR: return '🔆';
+      case BuildingType.MINE: return '⛏️';
+      case BuildingType.LAB: return '🔬';
       default: return '🏗️';
     }
   }
@@ -527,17 +618,66 @@
       title.className = 'tile-title';
       const icon = document.createElement('span');
       icon.className = 'building-icon';
-      icon.textContent = buildingIcon(tile.building);
-      title.appendChild(icon);
-      const nameSpan = document.createElement('span');
-      nameSpan.textContent = buildingLabel(tile.building);
-      title.appendChild(nameSpan);
+      // If building is missing (destroyed), show ruins indicator
+      if (tile.building) {
+        icon.textContent = buildingIcon(tile.building);
+        title.appendChild(icon);
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = buildingLabel(tile.building);
+        title.appendChild(nameSpan);
+      } else {
+        icon.textContent = '🏚️';
+        title.appendChild(icon);
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = 'Ruins';
+        title.appendChild(nameSpan);
+      }
       div.appendChild(title);
 
       const prod = document.createElement('div');
       prod.className = 'tile-prod';
       prod.textContent = 'Prod: ' + tileProduction(tile);
       div.appendChild(prod);
+
+      // building extra stats (maintenance, durability, sensitivity)
+      if (tile.building) {
+        const stats = document.createElement('div');
+        stats.className = 'building-stats';
+        const maint = document.createElement('div');
+        const buildingMaint = tile.building.maintenance ?? getBuildingStats(tile.building.type, tile.building.level).maintenance;
+        maint.textContent = 'Maint: ' + buildingMaint;
+        const dur = document.createElement('div');
+        const maxDur = getBuildingStats(tile.building.type, tile.building.level).durability;
+        const curDur = tile.building.durability ?? maxDur;
+        dur.textContent = 'HP: ' + curDur + '/' + maxDur;
+        const sens = document.createElement('div');
+        const sensLabel = tile.building.weatherSensitivity ?? getBuildingStats(tile.building.type, tile.building.level).sensitivity;
+        sens.textContent = 'Sens: ' + sensLabel;
+        stats.appendChild(maint);
+        stats.appendChild(dur);
+        stats.appendChild(sens);
+        div.appendChild(stats);
+
+        // add a small HP bar showing durability
+        const hpBar = document.createElement('div');
+        hpBar.className = 'hp-bar';
+        const hpFill = document.createElement('div');
+        hpFill.className = 'hp-fill';
+        const pct = Math.max(0, Math.min(100, Math.round((curDur / maxDur) * 100)));
+        hpFill.style.width = pct + '%';
+        // color the fill depending on pct (override gradient for low hp)
+        if (pct < 35) hpFill.style.background = 'linear-gradient(90deg,#f87171,#f43f5e)';
+        else if (pct < 65) hpFill.style.background = 'linear-gradient(90deg,#f59e0b,#fbbf24)';
+        hpBar.appendChild(hpFill);
+        div.appendChild(hpBar);
+
+        // set hover tooltip with full details
+        const tooltip = `Type: ${buildingLabel(tile.building)}\nLevel: ${tile.building.level}\nProduction: ${buildingBaseProduction(tile.building)}\nMaintenance: ${buildingMaint}\nDurability: ${curDur}/${maxDur}\nSensitivity: ${sensLabel}`;
+        div.title = tooltip;
+      } else {
+        // ensure no tooltip for ruins
+        div.title = 'Ruins';
+      }
 
       if (tile.effects.length > 0) {
         const eff = document.createElement('div');
@@ -577,7 +717,8 @@
       metaDiv.className = 'card-meta';
       metaDiv.textContent =
         `Cost: ${card.cost} ⚡ | x${card.productionMultiplier.toFixed(1)}`
-        + (card.durationTurns > 0 ? ` • ${card.durationTurns} turns` : ' • instant');
+        + (card.durationTurns > 0 ? ` • ${card.durationTurns} turns` : ' • instant')
+        + (card.damageBase ? ` • Dmg: ${card.damageBase}` : '');
       cardDiv.appendChild(metaDiv);
 
       cardDiv.addEventListener('click', onCardClick);
@@ -654,17 +795,44 @@
       return;
     }
 
+    // Prevent applying cards to empty tiles
+    if (!tile.building) {
+      setMessage('There is no building on that tile to affect.');
+      return;
+    }
+
     // Apply card
     if (card.id === 'calm') {
       tiles[tileIndex].effects = [];
       setMessage('Calm Skies cleared all effects on that tile.');
     } else {
+      // Scale card multiplier by building sensitivity
+      const sensFactor = sensitivityFactor(tile.building.weatherSensitivity);
+      const baseMultiplier = card.productionMultiplier;
+      const effectiveMultiplier = 1 + ((baseMultiplier - 1) * sensFactor);
+
       tiles[tileIndex].effects.push({
         name: card.name,
-        productionMultiplier: card.productionMultiplier,
+        productionMultiplier: effectiveMultiplier,
         remainingTurns: card.durationTurns
       });
-      setMessage(`${card.name} cast on ${ownerLabel(tile.owner)} ${buildingLabel(tile.building)}.`);
+
+      // If the card has a damage value (harmful cards), apply durability damage
+      if (card.damageBase && tile.building) {
+        const damage = Math.max(0, Math.round(card.damageBase * sensFactor));
+        tile.building.durability = (tile.building.durability ?? getBuildingStats(tile.building.type, tile.building.level).durability) - damage;
+
+        if (tile.building.durability <= 0) {
+          // building destroyed -> clear it and its effects
+          tiles[tileIndex].building = null;
+          tiles[tileIndex].effects = [];
+          setMessage(`${card.name} hit and destroyed ${ownerLabel(tile.owner)}'s ${buildingLabel(tile.building)}!`);
+        } else {
+          setMessage(`${card.name} cast on ${ownerLabel(tile.owner)} ${buildingLabel(tile.building)}. (${damage} dmg)`);
+        }
+      } else {
+        setMessage(`${card.name} cast on ${ownerLabel(tile.owner)} ${buildingLabel(tile.building)}.`);
+      }
     }
 
     weatherPoints -= card.cost;
@@ -689,6 +857,20 @@
 
     playerMoney += playerIncome;
     enemyMoney += enemyIncome;
+
+    // Deduct maintenance costs for each owner's buildings
+    const playerMaintenance = tiles
+      .filter(t => t.owner === Owner.PLAYER && t.building)
+      .map(t => t.building.maintenance ?? getBuildingStats(t.building.type, t.building.level).maintenance)
+      .reduce((a, b) => a + b, 0);
+
+    const enemyMaintenance = tiles
+      .filter(t => t.owner === Owner.ENEMY && t.building)
+      .map(t => t.building.maintenance ?? getBuildingStats(t.building.type, t.building.level).maintenance)
+      .reduce((a, b) => a + b, 0);
+
+    playerMoney -= playerMaintenance;
+    enemyMoney -= enemyMaintenance;
 
     // Gain more weather points
     weatherPoints += 3;
@@ -718,7 +900,7 @@
         initGame();
       }, 2000);
     } else {
-      setMessage(`Turn ended. You earned ${playerIncome}, enemy earned ${enemyIncome}.`);
+      setMessage(`Turn ended. You earned ${playerIncome}, enemy earned ${enemyIncome}. Maintenance: -${playerMaintenance} / -${enemyMaintenance}.`);
       updateHUD();
     }
   }
