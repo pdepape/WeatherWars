@@ -526,42 +526,71 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="sidebar-title">Buildings</div>
+  <div class="sidebar-title">Terrain & Buildings</div>
   
   <div class="building-info">
-    <div class="building-name">🌾 Farm</div>
-    <div class="building-desc">Produces food and resources. Steady, reliable income.</div>
-    <div class="building-prod">Production: 20 × level</div>
+    <div class="building-name">🌱 Grassland</div>
+    <div class="building-desc">Good for Farms. Farms get +20% production here.</div>
   </div>
 
   <div class="building-info">
-    <div class="building-name">🏭 Factory</div>
-    <div class="building-desc">Industrial production. Generates high output but affected by weather.</div>
-    <div class="building-prod">Production: 40 × level • Maint: 3 × level • Sensitivity: high</div>
+    <div class="building-name">⛰️ Mountain</div>
+    <div class="building-desc">Excellent for Mines. Mines get +50% production here.</div>
   </div>
 
   <div class="building-info">
-    <div class="building-name">💨 Wind</div>
-    <div class="building-desc">Renewable energy. Minimal output, but reliable in some conditions.</div>
-    <div class="building-prod">Production: 10 × level • Maint: 1 × level • Sensitivity: medium</div>
+    <div class="building-name">💧 Water</div>
+    <div class="building-desc">Great for Wind & Solar. Wind/Solar get +40%/+20% production.</div>
   </div>
 
   <div class="building-info">
-    <div class="building-name">🔆 Solar</div>
-    <div class="building-desc">Solar arrays produce steadily during clear turns; low maintenance.</div>
-    <div class="building-prod">Production: 25 × level • Maint: 1 × level • Sensitivity: low</div>
+    <div class="building-name">🏜️ Desert</div>
+    <div class="building-desc">Perfect for Solar. Solar gets +80% production here.</div>
   </div>
 
   <div class="building-info">
-    <div class="building-name">⛏️ Mine</div>
-    <div class="building-desc">Resource extraction with decent output and medium upkeep.</div>
-    <div class="building-prod">Production: 30 × level • Maint: 2 × level • Sensitivity: medium</div>
+    <div class="building-name">🤝 Adjacency Bonus</div>
+    <div class="building-desc">Same terrain next to each other? +10% production per adjacent tile (max +40%).</div>
   </div>
 
-  <div class="building-info">
-    <div class="building-name">🔬 Lab</div>
-    <div class="building-desc">Research facility: lower base output but useful for upgrades (future).</div>
-    <div class="building-prod">Production: 15 × level • Maint: 2 × level • Sensitivity: low</div>
+  <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(148, 163, 184, 0.3);">
+    <div class="sidebar-title">Buildings</div>
+    
+    <div class="building-info">
+      <div class="building-name">🌾 Farm</div>
+      <div class="building-desc">Produces food and resources. Steady, reliable income.</div>
+      <div class="building-prod">Production: 20 × level</div>
+    </div>
+
+    <div class="building-info">
+      <div class="building-name">🏭 Factory</div>
+      <div class="building-desc">Industrial production. Generates high output but affected by weather.</div>
+      <div class="building-prod">Production: 40 × level • Maint: 3 × level • Sensitivity: high</div>
+    </div>
+
+    <div class="building-info">
+      <div class="building-name">💨 Wind</div>
+      <div class="building-desc">Renewable energy. Minimal output, but reliable in some conditions.</div>
+      <div class="building-prod">Production: 10 × level • Maint: 1 × level • Sensitivity: medium</div>
+    </div>
+
+    <div class="building-info">
+      <div class="building-name">🔆 Solar</div>
+      <div class="building-desc">Solar arrays produce steadily during clear turns; low maintenance.</div>
+      <div class="building-prod">Production: 25 × level • Maint: 1 × level • Sensitivity: low</div>
+    </div>
+
+    <div class="building-info">
+      <div class="building-name">⛏️ Mine</div>
+      <div class="building-desc">Resource extraction with decent output and medium upkeep.</div>
+      <div class="building-prod">Production: 30 × level • Maint: 2 × level • Sensitivity: medium</div>
+    </div>
+
+    <div class="building-info">
+      <div class="building-name">🔬 Lab</div>
+      <div class="building-desc">Research facility: lower base output but useful for upgrades (future).</div>
+      <div class="building-prod">Production: 15 × level • Maint: 2 × level • Sensitivity: low</div>
+    </div>
   </div>
 </div>
 
@@ -571,12 +600,12 @@
       <div class="game-title">Weather Wars</div>
       <div class="tag">
         <span class="pill">Turn <span id="turnDisplay">1</span> / <span id="maxTurnsDisplay">10</span></span>
+        <span class="pill" id="phaseDisplay" style="margin-left: 8px;">Phase: Tile Selection</span>
       </div>
     </div>
     <div class="stats">
       <div>💰 You: <span id="playerMoney">0</span></div>
       <div>💰 Enemy: <span id="enemyMoney">0</span></div>
-      <div>⚡ <span id="weatherPoints">5</span> WP</div>
     </div>
   </div>
   <div id="characterPanels" class="character-panels" style="display:none; margin-bottom:16px;"></div>
@@ -590,7 +619,7 @@
     <div style="display:flex; gap:8px;">
       <button class="btn" id="restartGameBtn" style="display:none;">Restart Game</button>
       <button class="btn" id="endGameBtn" style="display:none;">End Game</button>
-      <button class="btn" id="endTurnBtn">End Turn</button>
+      <button class="btn" id="endTurnBtn">Next Phase</button>
     </div>
   </div>
 </div>
@@ -612,6 +641,13 @@
     LAB: 'lab'
   };
 
+  const TerrainType = {
+    GRASSLAND: 'grassland',
+    MOUNTAIN: 'mountain',
+    WATER: 'water',
+    DESERT: 'desert'
+  };
+
   let tiles = [];
   let cards = [];
   let selectedCardId = null;
@@ -624,6 +660,35 @@
 
   let selectedPlayerCharacter = null;
   let selectedEnemyCharacter = null;
+
+  // Phase system
+  let gamePhase = 'tile-selection'; // 'tile-selection', 'building-placement', 'power-usage', 'end-turn'
+  let selectedTiles = new Set(); // tile IDs selected for building placement
+  let selectedBuildingType = null;
+  let buildingCosts = {
+    farm: 50,
+    factory: 100,
+    wind: 60,
+    solar: 80,
+    mine: 90,
+    lab: 75
+  };
+
+  // Terrain-building interactions (production multiplier)
+  const terrainBuildingModifiers = {
+    grassland: { farm: 1.2, factory: 1.0, wind: 1.0, solar: 0.9, mine: 0.8, lab: 1.0 },
+    mountain: { farm: 0.7, factory: 0.9, wind: 1.3, solar: 1.0, mine: 1.5, lab: 1.1 },
+    water: { farm: 1.1, factory: 0.7, wind: 1.4, solar: 1.2, mine: 0.5, lab: 0.9 },
+    desert: { farm: 0.6, factory: 1.0, wind: 1.1, solar: 1.8, mine: 1.0, lab: 0.8 }
+  };
+
+  // Terrain icons
+  const terrainIcons = {
+    grassland: '🌱',
+    mountain: '⛰️',
+    water: '💧',
+    desert: '🏜️'
+  };
 
   const Characters = [
     { name: 'Ava Storm', city: 'New York', power: 'Hurricane Control', description: 'Can summon hurricanes to devastate enemy resources.' },
@@ -644,11 +709,14 @@
   // --- INITIALISATION ---
 
   function initGame() {
-    playerMoney = 0;
-    enemyMoney = 0;
-    weatherPoints = 15; // Start with 15 weather points
+    playerMoney = 200;
+    enemyMoney = 200;
+    weatherPoints = 0;
     turn = 1;
     selectedCardId = null;
+    gamePhase = 'tile-selection';
+    selectedTiles = new Set();
+    selectedBuildingType = null;
 
     // 4x4 board of tiles (4 columns x 4 rows)
     tiles = [];
@@ -666,9 +734,14 @@
       ];
       const buildingType = types[i % types.length];
 
+      // Random terrain
+      const terrainTypes = Object.values(TerrainType);
+      const terrain = terrainTypes[Math.floor(Math.random() * terrainTypes.length)];
+
       tiles.push({
         id: i,
         owner,
+        terrain,
         building: createBuilding(buildingType, 1),
         effects: [] // { name, productionMultiplier, remainingTurns }
       });
@@ -678,7 +751,7 @@
     renderBoard();
     renderCards();
     updateHUD();
-    setMessage('Pick a weather card, then tap a tile.');
+    setMessage('Phase 1: Select tiles to upgrade or build on.');
   }
 
   function randomizeCards() {
@@ -686,7 +759,7 @@
       {
         id: 'sunny',
         name: 'Sunny Boost',
-        cost: 3,
+        cost: 30,
         durationTurns: 3,
         productionMultiplier: 1.5,
         isBeneficial: true,
@@ -696,7 +769,7 @@
       {
         id: 'storm',
         name: 'Storm',
-        cost: 4,
+        cost: 40,
         durationTurns: 2,
         productionMultiplier: 0.5,
         isHarmful: true,
@@ -707,7 +780,7 @@
       {
         id: 'calm',
         name: 'Calm Skies',
-        cost: 2,
+        cost: 20,
         durationTurns: 0,
         productionMultiplier: 1.0,
         canTargetPlayerTiles: true,
@@ -716,7 +789,7 @@
       {
         id: 'rain',
         name: 'Rainfall',
-        cost: 3,
+        cost: 35,
         durationTurns: 2,
         productionMultiplier: 1.2,
         canTargetPlayerTiles: true,
@@ -725,7 +798,7 @@
       {
         id: 'drought',
         name: 'Drought',
-        cost: 5,
+        cost: 50,
         durationTurns: 3,
         productionMultiplier: 0.8,
         canTargetPlayerTiles: false,
@@ -734,7 +807,7 @@
       {
         id: 'hail',
         name: 'Hailstorm',
-        cost: 4,
+        cost: 45,
         durationTurns: 2,
         productionMultiplier: 0.6,
         canTargetPlayerTiles: false,
@@ -743,7 +816,7 @@
       {
         id: 'fog',
         name: 'Fog',
-        cost: 2,
+        cost: 25,
         durationTurns: 1,
         productionMultiplier: 0.9,
         canTargetPlayerTiles: true,
@@ -752,7 +825,7 @@
       {
         id: 'heatwave',
         name: 'Heatwave',
-        cost: 6,
+        cost: 60,
         durationTurns: 3,
         productionMultiplier: 0.7,
         canTargetPlayerTiles: false,
@@ -761,7 +834,7 @@
       {
         id: 'blizzard',
         name: 'Blizzard',
-        cost: 5,
+        cost: 55,
         durationTurns: 3,
         productionMultiplier: 0.5,
         canTargetPlayerTiles: false,
@@ -770,7 +843,7 @@
       {
         id: 'lightning',
         name: 'Lightning Strike',
-        cost: 4,
+        cost: 45,
         durationTurns: 1,
         productionMultiplier: 0.4,
         canTargetPlayerTiles: false,
@@ -779,7 +852,7 @@
       {
         id: 'tornado',
         name: 'Tornado',
-        cost: 7,
+        cost: 70,
         durationTurns: 2,
         productionMultiplier: 0.3,
         canTargetPlayerTiles: false,
@@ -788,7 +861,7 @@
       {
         id: 'eclipse',
         name: 'Eclipse',
-        cost: 6,
+        cost: 60,
         durationTurns: 2,
         productionMultiplier: 0.6,
         canTargetPlayerTiles: true,
@@ -802,6 +875,35 @@
 
 
   // --- HELPERS ---
+
+  function getTerrainModifier(terrain, buildingType) {
+    return terrainBuildingModifiers[terrain]?.[buildingType] ?? 1.0;
+  }
+
+  function getAdjacentTiles(tileId) {
+    const row = Math.floor(tileId / 4);
+    const col = tileId % 4;
+    const adjacent = [];
+
+    // Check up, down, left, right
+    if (row > 0) adjacent.push(tileId - 4);
+    if (row < 3) adjacent.push(tileId + 4);
+    if (col > 0) adjacent.push(tileId - 1);
+    if (col < 3) adjacent.push(tileId + 1);
+
+    return adjacent.map(id => tiles.find(t => t.id === id)).filter(Boolean);
+  }
+
+  function getAdjacencyBonus(tileId) {
+    const tile = tiles.find(t => t.id === tileId);
+    if (!tile) return 1.0;
+
+    const adjacent = getAdjacentTiles(tileId);
+    const sameTerrain = adjacent.filter(t => t.terrain === tile.terrain).length;
+
+    // Bonus: 0.1 for each adjacent tile with same terrain (max 0.4)
+    return 1.0 + (sameTerrain * 0.1);
+  }
 
   function buildingBaseProduction(building) {
     if (!building) return 0;
@@ -852,11 +954,28 @@
 
   function tileProduction(tile) {
     const base = buildingBaseProduction(tile.building);
-    let mult = 1;
+    if (base === 0) return 0;
+
+    // Apply terrain modifier
+    let terrainMult = 1.0;
+    if (tile.building && tile.terrain) {
+      terrainMult = getTerrainModifier(tile.terrain, tile.building.type);
+    }
+
+    // Apply adjacency bonus
+    let adjacencyMult = 1.0;
+    const tileIndex = tiles.findIndex(t => t === tile);
+    if (tileIndex !== -1) {
+      adjacencyMult = getAdjacencyBonus(tiles[tileIndex].id);
+    }
+
+    // Apply weather effects
+    let effectsMult = 1;
     tile.effects.forEach(e => {
-      mult *= e.productionMultiplier;
+      effectsMult *= e.productionMultiplier;
     });
-    return Math.round(base * mult);
+
+    return Math.round(base * terrainMult * adjacencyMult * effectsMult);
   }
 
   function ownerLabel(owner) {
@@ -909,6 +1028,12 @@
       div.className = 'tile ' + (tile.owner === Owner.PLAYER ? 'player' : 'enemy');
       div.dataset.tileId = tile.id.toString();
 
+      // Highlight selected tiles during tile-selection phase
+      if (gamePhase === 'tile-selection' && selectedTiles.has(tile.id)) {
+        div.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.8)';
+        div.style.borderColor = '#3b82f6';
+      }
+
       // owner badge (small pill in top-right)
       const badge = document.createElement('div');
       badge.className = 'owner-badge';
@@ -920,6 +1045,21 @@
       ownerText.textContent = ownerLabel(tile.owner);
       badge.appendChild(ownerText);
       div.appendChild(badge);
+
+      // Terrain badge (top-left)
+      const terrainBadge = document.createElement('div');
+      terrainBadge.className = 'owner-badge';
+      terrainBadge.style.left = '10px';
+      terrainBadge.style.right = 'auto';
+      const terrainIcon = document.createElement('span');
+      terrainIcon.style.fontSize = '1.2rem';
+      terrainIcon.textContent = terrainIcons[tile.terrain];
+      terrainBadge.appendChild(terrainIcon);
+      const terrainLabel = document.createElement('span');
+      terrainLabel.textContent = tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
+      terrainLabel.style.fontSize = '0.75rem';
+      terrainBadge.appendChild(terrainLabel);
+      div.appendChild(terrainBadge);
 
       // title with building icon + name (no dash)
       const title = document.createElement('div');
@@ -980,11 +1120,13 @@
         div.appendChild(hpBar);
 
         // set hover tooltip with full details
-        const tooltip = `Type: ${buildingLabel(tile.building)}\nLevel: ${tile.building.level}\nProduction: ${buildingBaseProduction(tile.building)}\nMaintenance: ${buildingMaint}\nDurability: ${curDur}/${maxDur}\nSensitivity: ${sensLabel}`;
+        const terrainModifier = getTerrainModifier(tile.terrain, tile.building.type);
+        const adjacencyBonus = getAdjacencyBonus(tile.id);
+        const tooltip = `Terrain: ${tile.terrain} (x${terrainModifier.toFixed(2)})\nAdjacency: x${adjacencyBonus.toFixed(2)}\nType: ${buildingLabel(tile.building)}\nLevel: ${tile.building.level}\nBase Prod: ${buildingBaseProduction(tile.building)}\nMaintenance: ${buildingMaint}\nDurability: ${curDur}/${maxDur}\nSensitivity: ${sensLabel}`;
         div.title = tooltip;
       } else {
         // ensure no tooltip for ruins
-        div.title = 'Ruins';
+        div.title = 'Ruins - Terrain: ' + tile.terrain;
       }
 
       if (tile.effects.length > 0) {
@@ -1003,43 +1145,92 @@
     const row = document.getElementById('cardsRow');
     row.innerHTML = '';
 
-    cards.forEach(card => {
-      const cardDiv = document.createElement('div');
-      cardDiv.className = 'card';
-      cardDiv.dataset.cardId = card.id;
+    if (gamePhase === 'building-placement') {
+      // Show building selection cards
+      Object.keys(buildingCosts).forEach(buildingType => {
+        const cost = buildingCosts[buildingType];
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        cardDiv.dataset.buildingType = buildingType;
 
-      if (card.id === selectedCardId) {
-        cardDiv.classList.add('selected');
-      }
+        if (buildingType === selectedBuildingType) {
+          cardDiv.classList.add('selected');
+        }
 
-      if (weatherPoints < card.cost) {
-        cardDiv.classList.add('unaffordable');
-      }
+        if (playerMoney < cost) {
+          cardDiv.classList.add('unaffordable');
+        }
 
-      const nameDiv = document.createElement('div');
-      nameDiv.className = 'card-name';
-      nameDiv.textContent = card.name;
-      cardDiv.appendChild(nameDiv);
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'card-name';
+        nameDiv.textContent = buildingLabel({ type: buildingType });
+        cardDiv.appendChild(nameDiv);
 
-      const metaDiv = document.createElement('div');
-      metaDiv.className = 'card-meta';
-      metaDiv.textContent =
-        `Cost: ${card.cost} ⚡ | x${card.productionMultiplier.toFixed(1)}`
-        + (card.durationTurns > 0 ? ` • ${card.durationTurns} turns` : ' • instant')
-        + (card.damageBase ? ` • Dmg: ${card.damageBase}` : '');
-      cardDiv.appendChild(metaDiv);
+        const metaDiv = document.createElement('div');
+        metaDiv.className = 'card-meta';
+        metaDiv.textContent = `Cost: ${cost} 💰`;
+        cardDiv.appendChild(metaDiv);
 
-      cardDiv.addEventListener('click', onCardClick);
-      row.appendChild(cardDiv);
-    });
+        cardDiv.addEventListener('click', onBuildingCardClick);
+        row.appendChild(cardDiv);
+      });
+    } else if (gamePhase === 'power-usage') {
+      // Show weather power cards
+      cards.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        cardDiv.dataset.cardId = card.id;
+
+        if (card.id === selectedCardId) {
+          cardDiv.classList.add('selected');
+        }
+
+        if (playerMoney < card.cost) {
+          cardDiv.classList.add('unaffordable');
+        }
+
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'card-name';
+        nameDiv.textContent = card.name;
+        cardDiv.appendChild(nameDiv);
+
+        const metaDiv = document.createElement('div');
+        metaDiv.className = 'card-meta';
+        metaDiv.textContent =
+          `Cost: ${card.cost} 💰 | x${card.productionMultiplier.toFixed(1)}`
+          + (card.durationTurns > 0 ? ` • ${card.durationTurns} turns` : ' • instant')
+          + (card.damageBase ? ` • Dmg: ${card.damageBase}` : '');
+        cardDiv.appendChild(metaDiv);
+
+        cardDiv.addEventListener('click', onCardClick);
+        row.appendChild(cardDiv);
+      });
+    }
   }
 
   function updateHUD() {
     document.getElementById('playerMoney').textContent = playerMoney.toString();
     document.getElementById('enemyMoney').textContent = enemyMoney.toString();
-    document.getElementById('weatherPoints').textContent = weatherPoints.toString();
     document.getElementById('turnDisplay').textContent = turn.toString();
     document.getElementById('maxTurnsDisplay').textContent = maxTurns.toString();
+
+    // Update phase display
+    const phaseNames = {
+      'tile-selection': 'Phase 1: Tile Selection',
+      'building-placement': 'Phase 2: Building Placement',
+      'power-usage': 'Phase 3: Power Usage'
+    };
+    document.getElementById('phaseDisplay').textContent = 'Phase: ' + (phaseNames[gamePhase] || gamePhase);
+
+    // Update button label based on phase
+    const endTurnBtn = document.getElementById('endTurnBtn');
+    if (endTurnBtn) {
+      if (gamePhase === 'power-usage') {
+        endTurnBtn.textContent = 'End Turn';
+      } else {
+        endTurnBtn.textContent = 'Next Phase';
+      }
+    }
 
     // Also re-render board and cards to update numbers/colors
     renderBoard();
@@ -1053,20 +1244,42 @@
 
   // --- INPUT HANDLERS ---
 
+  function onBuildingCardClick(e) {
+    const buildingType = e.currentTarget.dataset.buildingType;
+    if (!buildingType) return;
+
+    const cost = buildingCosts[buildingType];
+    if (playerMoney < cost) {
+      setMessage('Not enough money to build that.');
+      return;
+    }
+
+    if (selectedBuildingType === buildingType) {
+      // Deselect if clicked again
+      selectedBuildingType = null;
+      setMessage('Building selection cleared.');
+    } else {
+      selectedBuildingType = buildingType;
+      setMessage(`Selected ${buildingLabel({ type: buildingType })} (Cost: ${cost}). Click tiles to place.`);
+    }
+
+    updateHUD();
+  }
+
   function onCardClick(e) {
     const cardId = e.currentTarget.dataset.cardId;
     const card = cards.find(c => c.id === cardId);
     if (!card) return;
 
-    if (weatherPoints < card.cost) {
-      setMessage('Not enough weather points for that card.');
+    if (playerMoney < card.cost) {
+      setMessage('Not enough money for that power.');
       return;
     }
 
     if (selectedCardId === cardId) {
       // Deselect if clicked again
       selectedCardId = null;
-      setMessage('Card deselected.');
+      setMessage('Power selection cleared.');
     } else {
       selectedCardId = cardId;
       setMessage(`Selected ${card.name}. Tap a tile to cast it.`);
@@ -1081,75 +1294,229 @@
     if (tileIndex === -1) return;
 
     const tile = tiles[tileIndex];
-    if (!selectedCardId) {
-      setMessage('Select a weather card first.');
-      return;
-    }
 
-    const card = cards.find(c => c.id === selectedCardId);
-    if (!card) return;
-
-    if (weatherPoints < card.cost) {
-      setMessage('Not enough weather points.');
-      return;
-    }
-
-    if (tile.owner === Owner.PLAYER && !card.canTargetPlayerTiles) {
-      setMessage('That card cannot target your own tiles.');
-      return;
-    }
-    if (tile.owner === Owner.ENEMY && !card.canTargetEnemyTiles) {
-      setMessage('That card cannot target enemy tiles.');
-      return;
-    }
-
-    // Prevent applying cards to empty tiles
-    if (!tile.building) {
-      setMessage('There is no building on that tile to affect.');
-      return;
-    }
-
-    // Apply card
-    if (card.id === 'calm') {
-      tiles[tileIndex].effects = [];
-      setMessage('Calm Skies cleared all effects on that tile.');
-    } else {
-      // Scale card multiplier by building sensitivity
-      const sensFactor = sensitivityFactor(tile.building.weatherSensitivity);
-      const baseMultiplier = card.productionMultiplier;
-      const effectiveMultiplier = 1 + ((baseMultiplier - 1) * sensFactor);
-
-      tiles[tileIndex].effects.push({
-        name: card.name,
-        productionMultiplier: effectiveMultiplier,
-        remainingTurns: card.durationTurns
-      });
-
-      // If the card has a damage value (harmful cards), apply durability damage
-      if (card.damageBase && tile.building) {
-        const damage = Math.max(0, Math.round(card.damageBase * sensFactor));
-        tile.building.durability = (tile.building.durability ?? getBuildingStats(tile.building.type, tile.building.level).durability) - damage;
-
-        if (tile.building.durability <= 0) {
-          // building destroyed -> clear it and its effects
-          tiles[tileIndex].building = null;
-          tiles[tileIndex].effects = [];
-          setMessage(`${card.name} hit and destroyed ${ownerLabel(tile.owner)}'s ${buildingLabel(tile.building)}!`);
-        } else {
-          setMessage(`${card.name} cast on ${ownerLabel(tile.owner)} ${buildingLabel(tile.building)}. (${damage} dmg)`);
-        }
-      } else {
-        setMessage(`${card.name} cast on ${ownerLabel(tile.owner)} ${buildingLabel(tile.building)}.`);
+    if (gamePhase === 'tile-selection') {
+      // Toggle tile selection
+      if (tile.owner !== Owner.PLAYER) {
+        setMessage('You can only select your own tiles.');
+        return;
       }
-    }
 
-    weatherPoints -= card.cost;
-    selectedCardId = null;
-    updateHUD();
+      if (selectedTiles.has(tileId)) {
+        selectedTiles.delete(tileId);
+        setMessage(`Tile deselected. Selected: ${selectedTiles.size}`);
+      } else {
+        selectedTiles.add(tileId);
+        setMessage(`Tile selected. Selected: ${selectedTiles.size}`);
+      }
+      updateHUD();
+    } else if (gamePhase === 'building-placement') {
+      // Place building on selected tile
+      if (tile.owner !== Owner.PLAYER) {
+        setMessage('You can only build on your own tiles.');
+        return;
+      }
+
+      if (!selectedTiles.has(tileId)) {
+        setMessage('That tile was not selected. Select it first in Phase 1.');
+        return;
+      }
+
+      if (!selectedBuildingType) {
+        setMessage('Select a building type first.');
+        return;
+      }
+
+      const cost = buildingCosts[selectedBuildingType];
+      if (playerMoney < cost) {
+        setMessage('Not enough money to build that.');
+        return;
+      }
+
+      // Place building or upgrade
+      playerMoney -= cost;
+      tiles[tileIndex].building = createBuilding(selectedBuildingType, 1);
+      setMessage(`Built ${buildingLabel(tiles[tileIndex].building)} on tile ${tileId}.`);
+      updateHUD();
+    } else if (gamePhase === 'power-usage') {
+      // Apply weather power to tile
+      if (!selectedCardId) {
+        setMessage('Select a power first.');
+        return;
+      }
+
+      const card = cards.find(c => c.id === selectedCardId);
+      if (!card) return;
+
+      if (playerMoney < card.cost) {
+        setMessage('Not enough money.');
+        return;
+      }
+
+      if (tile.owner === Owner.PLAYER && !card.canTargetPlayerTiles) {
+        setMessage('That power cannot target your own tiles.');
+        return;
+      }
+      if (tile.owner === Owner.ENEMY && !card.canTargetEnemyTiles) {
+        setMessage('That power cannot target enemy tiles.');
+        return;
+      }
+
+      // Prevent applying powers to empty tiles
+      if (!tile.building) {
+        setMessage('There is no building on that tile to affect.');
+        return;
+      }
+
+      // Apply card
+      if (card.id === 'calm') {
+        tiles[tileIndex].effects = [];
+        setMessage('Calm Skies cleared all effects on that tile.');
+      } else {
+        // Scale card multiplier by building sensitivity
+        const sensFactor = sensitivityFactor(tile.building.weatherSensitivity);
+        const baseMultiplier = card.productionMultiplier;
+        const effectiveMultiplier = 1 + ((baseMultiplier - 1) * sensFactor);
+
+        tiles[tileIndex].effects.push({
+          name: card.name,
+          productionMultiplier: effectiveMultiplier,
+          remainingTurns: card.durationTurns
+        });
+
+        // If the card has a damage value (harmful cards), apply durability damage
+        if (card.damageBase && tile.building) {
+          const damage = Math.max(0, Math.round(card.damageBase * sensFactor));
+          tile.building.durability = (tile.building.durability ?? getBuildingStats(tile.building.type, tile.building.level).durability) - damage;
+
+          if (tile.building.durability <= 0) {
+            // building destroyed -> clear it and its effects
+            tiles[tileIndex].building = null;
+            tiles[tileIndex].effects = [];
+            setMessage(`${card.name} hit and destroyed ${ownerLabel(tile.owner)}'s building!`);
+          } else {
+            setMessage(`${card.name} cast on ${ownerLabel(tile.owner)} tile. (${damage} dmg)`);
+          }
+        } else {
+          setMessage(`${card.name} cast on ${ownerLabel(tile.owner)} tile.`);
+        }
+      }
+
+      playerMoney -= card.cost;
+      selectedCardId = null;
+      updateHUD();
+    }
   }
 
 
-  // --- TURN LOGIC ---
+  // --- AI LOGIC ---
+
+  function executeEnemyTurn() {
+    // Phase 1: Tile selection
+    const enemyTiles = tiles.filter(t => t.owner === Owner.ENEMY);
+    const selectedEnemyTiles = new Set();
+    const numTilesToSelect = Math.min(2 + Math.floor(Math.random() * 2), enemyTiles.length);
+    while (selectedEnemyTiles.size < numTilesToSelect) {
+      const randomTile = enemyTiles[Math.floor(Math.random() * enemyTiles.length)];
+      selectedEnemyTiles.add(randomTile.id);
+    }
+
+    // Phase 2: Building placement - prefer buildings that match terrain
+    selectedEnemyTiles.forEach(tileId => {
+      const tile = tiles.find(t => t.id === tileId);
+      if (!tile) return;
+
+      // Pick a building type that works well with this terrain
+      const buildingTypes = Object.keys(buildingCosts);
+      const buildingScores = buildingTypes.map(type => ({
+        type,
+        score: getTerrainModifier(tile.terrain, type)
+      }));
+      buildingScores.sort((a, b) => b.score - a.score);
+      
+      const buildingType = buildingScores[0].type;
+      const cost = buildingCosts[buildingType];
+
+      if (enemyMoney >= cost) {
+        const tileIndex = tiles.findIndex(t => t.id === tileId);
+        if (tileIndex !== -1) {
+          enemyMoney -= cost;
+          tiles[tileIndex].building = createBuilding(buildingType, 1);
+        }
+      }
+    });
+
+    // Phase 3: Power usage
+    // Pick 1-2 random cards to cast
+    const numPowers = Math.max(1, Math.floor(Math.random() * 2));
+    const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
+    
+    for (let i = 0; i < Math.min(numPowers, shuffledCards.length); i++) {
+      const card = shuffledCards[i];
+      if (enemyMoney < card.cost) continue;
+
+      // Find valid targets
+      let validTiles = tiles.filter(t => {
+        if (!t.building) return false;
+        if (t.owner === Owner.PLAYER && card.canTargetPlayerTiles) return true;
+        if (t.owner === Owner.ENEMY && card.canTargetEnemyTiles) return true;
+        return false;
+      });
+
+      if (validTiles.length === 0) continue;
+
+      const targetTile = validTiles[Math.floor(Math.random() * validTiles.length)];
+      const targetIndex = tiles.findIndex(t => t.id === targetTile.id);
+      if (targetIndex === -1) continue;
+
+      // Apply the card
+      if (card.id === 'calm') {
+        tiles[targetIndex].effects = [];
+      } else {
+        const sensFactor = sensitivityFactor(tiles[targetIndex].building.weatherSensitivity);
+        const baseMultiplier = card.productionMultiplier;
+        const effectiveMultiplier = 1 + ((baseMultiplier - 1) * sensFactor);
+
+        tiles[targetIndex].effects.push({
+          name: card.name,
+          productionMultiplier: effectiveMultiplier,
+          remainingTurns: card.durationTurns
+        });
+
+        // Apply damage if applicable
+        if (card.damageBase && tiles[targetIndex].building) {
+          const damage = Math.max(0, Math.round(card.damageBase * sensFactor));
+          tiles[targetIndex].building.durability = 
+            (tiles[targetIndex].building.durability ?? getBuildingStats(tiles[targetIndex].building.type, tiles[targetIndex].building.level).durability) - damage;
+
+          if (tiles[targetIndex].building.durability <= 0) {
+            tiles[targetIndex].building = null;
+            tiles[targetIndex].effects = [];
+          }
+        }
+      }
+
+      enemyMoney -= card.cost;
+    }
+  }
+
+  function progressPhase() {
+    // Progress through phases: tile-selection -> building-placement -> power-usage -> end-turn
+    if (gamePhase === 'tile-selection') {
+      gamePhase = 'building-placement';
+      selectedTiles.clear();
+      selectedBuildingType = null;
+      setMessage('Phase 2: Select a building type and place it on your tiles.');
+      updateHUD();
+    } else if (gamePhase === 'building-placement') {
+      gamePhase = 'power-usage';
+      selectedBuildingType = null;
+      setMessage('Phase 3: Select a power and cast it on tiles.');
+      updateHUD();
+    } else if (gamePhase === 'power-usage') {
+      endTurn();
+    }
+  }
 
   function endTurn() {
     // Income for both players
@@ -1180,9 +1547,6 @@
     playerMoney -= playerMaintenance;
     enemyMoney -= enemyMaintenance;
 
-    // Gain more weather points
-    weatherPoints += 13; // Original 3 + 10 more
-
     // Tick effects
     tiles.forEach(tile => {
       tile.effects = tile.effects
@@ -1195,6 +1559,9 @@
 
     // Randomize cards for the next turn
     randomizeCards();
+
+    // Execute enemy turn
+    executeEnemyTurn();
 
     turn += 1;
 
@@ -1211,7 +1578,12 @@
         initGame();
       }, 2000);
     } else {
-      setMessage(`Turn ended. You earned ${playerIncome}, enemy earned ${enemyIncome}. Maintenance: -${playerMaintenance} / -${enemyMaintenance}.`);
+      // Reset for next turn
+      gamePhase = 'tile-selection';
+      selectedTiles.clear();
+      selectedCardId = null;
+      selectedBuildingType = null;
+      setMessage(`Turn ${turn} started. Income: +${playerIncome} (enemy +${enemyIncome}). Maintenance: -${playerMaintenance} (-${enemyMaintenance}). Phase 1: Select tiles.`);
       updateHUD();
     }
   }
@@ -1221,7 +1593,7 @@
 
   const initialEndTurnBtn = document.getElementById('endTurnBtn');
   if (initialEndTurnBtn) {
-    initialEndTurnBtn.addEventListener('click', endTurn);
+    initialEndTurnBtn.addEventListener('click', progressPhase);
   }
 
 
@@ -1331,7 +1703,7 @@
       endTurnBtn.replaceWith(endTurnBtn.cloneNode(true));
     }
     const reattachedEndTurnBtn = document.getElementById('endTurnBtn');
-    if (reattachedEndTurnBtn) reattachedEndTurnBtn.addEventListener('click', endTurn);
+    if (reattachedEndTurnBtn) reattachedEndTurnBtn.addEventListener('click', progressPhase);
 
     initGame();
   }
