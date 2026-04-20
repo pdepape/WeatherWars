@@ -135,6 +135,12 @@
       border-color: rgba(239, 68, 68, 0.12);
     }
 
+    .tile.neutral {
+      border-left: 6px solid rgba(107, 114, 128, 0.95);
+      background: linear-gradient(180deg, rgba(107,114,128,0.03), rgba(15,23,42,0.02));
+      border-color: rgba(107, 114, 128, 0.12);
+    }
+
     .tile:hover {
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -183,6 +189,7 @@
 
     .owner-dot.player { background: rgba(34,197,94,0.95); }
     .owner-dot.enemy  { background: rgba(239,68,68,0.95); }
+    .owner-dot.neutral { background: rgba(107,114,128,0.95); }
 
     /* Main content section */
     .tile-content {
@@ -767,18 +774,8 @@
     // 4x4 board of tiles (4 columns x 4 rows)
     tiles = [];
     for (let i = 0; i < 16; i++) {
-      // balanced: first half -> player, second half -> enemy
-      const owner = i < 8 ? Owner.PLAYER : Owner.ENEMY;
-      // cycle through the available building types for more variety
-      const types = [
-        BuildingType.FARM,
-        BuildingType.FACTORY,
-        BuildingType.WIND,
-        BuildingType.SOLAR,
-        BuildingType.MINE,
-        BuildingType.LAB
-      ];
-      const buildingType = types[i % types.length];
+      // All tiles start unowned and with no buildings
+      const owner = null; // Unowned
 
       // Random terrain
       const terrainTypes = Object.values(TerrainType);
@@ -788,7 +785,7 @@
         id: i,
         owner,
         terrain,
-        building: createBuilding(buildingType, 1),
+        building: null, // No building initially
         effects: [] // { name, productionMultiplier, remainingTurns }
       });
     }
@@ -797,7 +794,7 @@
     renderBoard();
     renderCards();
     updateHUD();
-    setMessage('Phase 1: Select tiles to upgrade or build on.');
+    setMessage('Phase 1: Claim an unclaimed tile.');
   }
 
   function randomizeCards() {
@@ -1025,6 +1022,7 @@
   }
 
   function ownerLabel(owner) {
+    if (owner === null || owner === undefined) return 'Unclaimed';
     return owner === Owner.PLAYER ? 'You' : 'Enemy';
   }
 
@@ -1071,7 +1069,8 @@
 
     tiles.forEach(tile => {
       const div = document.createElement('div');
-      div.className = 'tile ' + (tile.owner === Owner.PLAYER ? 'player' : 'enemy');
+      const ownerClass = tile.owner === Owner.PLAYER ? 'player' : (tile.owner === Owner.ENEMY ? 'enemy' : 'neutral');
+      div.className = 'tile ' + ownerClass;
       div.dataset.tileId = tile.id.toString();
 
       // Highlight selected tiles during tile-selection phase
@@ -1094,7 +1093,8 @@
       const ownerBadge = document.createElement('div');
       ownerBadge.className = 'owner-badge';
       const dot = document.createElement('span');
-      dot.className = 'owner-dot ' + (tile.owner === Owner.PLAYER ? 'player' : 'enemy');
+      const ownerDotClass = tile.owner === Owner.PLAYER ? 'player' : (tile.owner === Owner.ENEMY ? 'enemy' : 'neutral');
+      dot.className = 'owner-dot ' + ownerDotClass;
       ownerBadge.appendChild(dot);
       const ownerText = document.createElement('span');
       ownerText.textContent = ownerLabel(tile.owner);
@@ -1377,29 +1377,22 @@
     const tile = tiles[tileIndex];
 
     if (gamePhase === 'tile-selection') {
-      // Toggle tile selection
-      if (tile.owner !== Owner.PLAYER) {
-        setMessage('You can only select your own tiles.');
+      // Pick one unowned tile to claim for the player
+      if (tile.owner !== null) {
+        setMessage('You can only select unclaimed tiles.');
         return;
       }
 
-      if (selectedTiles.has(tileId)) {
-        selectedTiles.delete(tileId);
-        setMessage(`Tile deselected. Selected: ${selectedTiles.size}`);
-      } else {
-        selectedTiles.add(tileId);
-        setMessage(`Tile selected. Selected: ${selectedTiles.size}`);
-      }
+      // Claim the tile for the player
+      tile.owner = Owner.PLAYER;
+      selectedTiles.add(tileId);
+      setMessage(`Tile claimed! Press the button to place a building.`);
+      renderBoard();
       updateHUD();
-    } else if (gamePhase === 'building-placement') {
-      // Place building on selected tile
+    if (gamePhase === 'building-placement') {
+      // Place building on claimed tile
       if (tile.owner !== Owner.PLAYER) {
         setMessage('You can only build on your own tiles.');
-        return;
-      }
-
-      if (!selectedTiles.has(tileId)) {
-        setMessage('That tile was not selected. Select it first in Phase 1.');
         return;
       }
 
@@ -1493,39 +1486,35 @@
   // --- AI LOGIC ---
 
   function executeEnemyTurn() {
-    // Phase 1: Tile selection
-    const enemyTiles = tiles.filter(t => t.owner === Owner.ENEMY);
-    const selectedEnemyTiles = new Set();
-    const numTilesToSelect = Math.min(2 + Math.floor(Math.random() * 2), enemyTiles.length);
-    while (selectedEnemyTiles.size < numTilesToSelect) {
-      const randomTile = enemyTiles[Math.floor(Math.random() * enemyTiles.length)];
-      selectedEnemyTiles.add(randomTile.id);
-    }
-
-    // Phase 2: Building placement - prefer buildings that match terrain
-    selectedEnemyTiles.forEach(tileId => {
-      const tile = tiles.find(t => t.id === tileId);
-      if (!tile) return;
-
-      // Pick a building type that works well with this terrain
-      const buildingTypes = Object.keys(buildingCosts);
-      const buildingScores = buildingTypes.map(type => ({
-        type,
-        score: getTerrainModifier(tile.terrain, type)
-      }));
-      buildingScores.sort((a, b) => b.score - a.score);
+    // Phase 1: Tile selection - claim an unclaimed tile
+    const unclaimedTiles = tiles.filter(t => t.owner === null);
+    
+    if (unclaimedTiles.length > 0) {
+      // Pick a random unclaimed tile
+      const randomTile = unclaimedTiles[Math.floor(Math.random() * unclaimedTiles.length)];
+      const tileIndex = tiles.findIndex(t => t.id === randomTile.id);
       
-      const buildingType = buildingScores[0].type;
-      const cost = buildingCosts[buildingType];
+      if (tileIndex !== -1) {
+        // Claim the tile for the enemy
+        tiles[tileIndex].owner = Owner.ENEMY;
+        
+        // Phase 2: Building placement - place a building that matches the terrain
+        const buildingTypes = Object.keys(buildingCosts);
+        const buildingScores = buildingTypes.map(type => ({
+          type,
+          score: getTerrainModifier(randomTile.terrain, type)
+        }));
+        buildingScores.sort((a, b) => b.score - a.score);
+        
+        const buildingType = buildingScores[0].type;
+        const cost = buildingCosts[buildingType];
 
-      if (enemyMoney >= cost) {
-        const tileIndex = tiles.findIndex(t => t.id === tileId);
-        if (tileIndex !== -1) {
+        if (enemyMoney >= cost) {
           enemyMoney -= cost;
           tiles[tileIndex].building = createBuilding(buildingType, 1);
         }
       }
-    });
+    }
 
     // Phase 3: Power usage
     // Pick 1-2 random cards to cast
@@ -1664,7 +1653,7 @@
       selectedTiles.clear();
       selectedCardId = null;
       selectedBuildingType = null;
-      setMessage(`Turn ${turn} started. Income: +${playerIncome} (enemy +${enemyIncome}). Maintenance: -${playerMaintenance} (-${enemyMaintenance}). Phase 1: Select tiles.`);
+      setMessage(`Turn ${turn} started. Income: +${playerIncome} (enemy +${enemyIncome}). Maintenance: -${playerMaintenance} (-${enemyMaintenance}). Phase 1: Claim a tile.`);
       updateHUD();
     }
   }
