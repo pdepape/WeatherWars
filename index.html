@@ -110,28 +110,27 @@
     .tile {
       background: linear-gradient(180deg, #0b1220, #0f1724);
       border-radius: 12px;
-      padding: 16px;
+      padding: 12px;
       text-align: left;
       cursor: pointer;
       transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
       border: 1px solid rgba(148, 163, 184, 0.06);
       font-size: 1.05rem;
-      min-height: 120px;
+      min-height: 140px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       position: relative;
       overflow: hidden;
     }
 
     .tile.player {
-      border-left: 8px solid rgba(22, 163, 74, 0.95);
+      border-left: 6px solid rgba(22, 163, 74, 0.95);
       background: linear-gradient(180deg, rgba(16,185,129,0.03), rgba(15,23,42,0.02));
       border-color: rgba(22, 163, 74, 0.12);
     }
 
     .tile.enemy {
-      border-left: 8px solid rgba(239, 68, 68, 0.95);
+      border-left: 6px solid rgba(239, 68, 68, 0.95);
       background: linear-gradient(180deg, rgba(239,68,68,0.03), rgba(15,23,42,0.02));
       border-color: rgba(239, 68, 68, 0.12);
     }
@@ -141,71 +140,42 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
-    .tile-title {
-      font-weight: 700;
-      margin-bottom: 8px;
-      font-size: 1.12rem;
+    .tile.selected {
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+      border-color: #3b82f6;
+    }
+
+    /* Top badges section */
+    .tile-badges {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 10px;
-    }
-
-    .tile-prod {
-      font-size: 1rem;
-      opacity: 0.95;
       margin-bottom: 8px;
-      color: #dbe7ff;
     }
 
-    .tile-effects {
-      margin-top: 6px;
-      font-size: 0.85rem;
-      color: #e5e7eb;
+    /* Terrain icon */
+    .terrain-icon {
+      font-size: 1.4rem;
+      opacity: 0.8;
     }
 
-    .building-stats {
-      display: flex;
-      gap: 10px;
-      font-size: 0.78rem;
-      color: #bcd3f8;
-      margin-top: 6px;
-      opacity: 0.95;
-    }
-
-    .hp-bar {
-      height: 8px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 6px;
-      overflow: hidden;
-      margin-top: 8px;
-    }
-
-    .hp-fill {
-      height: 100%;
-      background: linear-gradient(90deg,#34d399,#10b981);
-      transition: width 0.18s ease;
-    }
-
-    /* Owner badge + building icon */
+    /* Owner badge */
     .owner-badge {
-      position: absolute;
-      top: 10px;
-      right: 10px;
       display: inline-flex;
-      gap: 8px;
       align-items: center;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.04);
-      font-size: 0.86rem;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 0.75rem;
       color: #e6edf3;
       backdrop-filter: blur(2px);
     }
 
     .owner-dot {
-      width: 14px;
-      height: 14px;
+      width: 10px;
+      height: 10px;
       display: inline-block;
       border-radius: 50%;
       box-shadow: 0 1px 0 rgba(0,0,0,0.25) inset;
@@ -214,12 +184,88 @@
     .owner-dot.player { background: rgba(34,197,94,0.95); }
     .owner-dot.enemy  { background: rgba(239,68,68,0.95); }
 
+    /* Main content section */
+    .tile-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .tile-title {
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+
     .building-icon {
-      font-size: 1.6rem;
-      margin-right: 10px;
+      font-size: 1.4rem;
       display: inline-block;
       vertical-align: middle;
       line-height: 1;
+    }
+
+    .tile-prod {
+      font-size: 0.9rem;
+      opacity: 0.95;
+      color: #dbe7ff;
+      font-weight: 600;
+    }
+
+    /* Bottom stats section */
+    .tile-stats {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .building-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: #bcd3f8;
+      opacity: 0.9;
+    }
+
+    .stat-item {
+      text-align: center;
+      flex: 1;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      opacity: 0.7;
+      margin-bottom: 1px;
+    }
+
+    .hp-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+
+    .hp-fill {
+      height: 100%;
+      background: linear-gradient(90deg,#34d399,#10b981);
+      transition: width 0.18s ease;
+    }
+
+    .tile-effects {
+      font-size: 0.75rem;
+      color: #e5e7eb;
+      opacity: 0.85;
+      text-align: center;
+      padding: 2px 4px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 4px;
+      margin-top: 4px;
     }
 
     .cards {
@@ -1030,38 +1076,38 @@
 
       // Highlight selected tiles during tile-selection phase
       if (gamePhase === 'tile-selection' && selectedTiles.has(tile.id)) {
-        div.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.8)';
-        div.style.borderColor = '#3b82f6';
+        div.classList.add('selected');
       }
 
-      // owner badge (small pill in top-right)
-      const badge = document.createElement('div');
-      badge.className = 'owner-badge';
+      // Top badges section
+      const badgesDiv = document.createElement('div');
+      badgesDiv.className = 'tile-badges';
+
+      // Terrain icon (left)
+      const terrainIcon = document.createElement('span');
+      terrainIcon.className = 'terrain-icon';
+      terrainIcon.textContent = terrainIcons[tile.terrain];
+      terrainIcon.title = tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
+      badgesDiv.appendChild(terrainIcon);
+
+      // Owner badge (right)
+      const ownerBadge = document.createElement('div');
+      ownerBadge.className = 'owner-badge';
       const dot = document.createElement('span');
       dot.className = 'owner-dot ' + (tile.owner === Owner.PLAYER ? 'player' : 'enemy');
-      badge.appendChild(dot);
+      ownerBadge.appendChild(dot);
       const ownerText = document.createElement('span');
-      ownerText.className = 'owner-text';
       ownerText.textContent = ownerLabel(tile.owner);
-      badge.appendChild(ownerText);
-      div.appendChild(badge);
+      ownerBadge.appendChild(ownerText);
+      badgesDiv.appendChild(ownerBadge);
 
-      // Terrain badge (top-left)
-      const terrainBadge = document.createElement('div');
-      terrainBadge.className = 'owner-badge';
-      terrainBadge.style.left = '10px';
-      terrainBadge.style.right = 'auto';
-      const terrainIcon = document.createElement('span');
-      terrainIcon.style.fontSize = '1.2rem';
-      terrainIcon.textContent = terrainIcons[tile.terrain];
-      terrainBadge.appendChild(terrainIcon);
-      const terrainLabel = document.createElement('span');
-      terrainLabel.textContent = tile.terrain.charAt(0).toUpperCase() + tile.terrain.slice(1);
-      terrainLabel.style.fontSize = '0.75rem';
-      terrainBadge.appendChild(terrainLabel);
-      div.appendChild(terrainBadge);
+      div.appendChild(badgesDiv);
 
-      // title with building icon + name (no dash)
+      // Main content section
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'tile-content';
+
+      // Title with building icon + name
       const title = document.createElement('div');
       title.className = 'tile-title';
       const icon = document.createElement('span');
@@ -1080,55 +1126,90 @@
         nameSpan.textContent = 'Ruins';
         title.appendChild(nameSpan);
       }
-      div.appendChild(title);
+      contentDiv.appendChild(title);
 
+      // Production value
       const prod = document.createElement('div');
       prod.className = 'tile-prod';
       prod.textContent = 'Prod: ' + tileProduction(tile);
-      div.appendChild(prod);
+      contentDiv.appendChild(prod);
 
-      // building extra stats (maintenance, durability, sensitivity)
+      div.appendChild(contentDiv);
+
+      // Bottom stats section
       if (tile.building) {
-        const stats = document.createElement('div');
-        stats.className = 'building-stats';
+        const statsDiv = document.createElement('div');
+        statsDiv.className = 'tile-stats';
+
+        // Building stats (maintenance, HP, sensitivity)
+        const buildingStats = document.createElement('div');
+        buildingStats.className = 'building-stats';
+
         const maint = document.createElement('div');
+        maint.className = 'stat-item';
+        const maintLabel = document.createElement('div');
+        maintLabel.className = 'stat-label';
+        maintLabel.textContent = 'MAINT';
         const buildingMaint = tile.building.maintenance ?? getBuildingStats(tile.building.type, tile.building.level).maintenance;
-        maint.textContent = 'Maint: ' + buildingMaint;
-        const dur = document.createElement('div');
+        maint.appendChild(maintLabel);
+        const maintValue = document.createElement('div');
+        maintValue.textContent = buildingMaint;
+        maint.appendChild(maintValue);
+        buildingStats.appendChild(maint);
+
+        const hp = document.createElement('div');
+        hp.className = 'stat-item';
+        const hpLabel = document.createElement('div');
+        hpLabel.className = 'stat-label';
+        hpLabel.textContent = 'HP';
         const maxDur = getBuildingStats(tile.building.type, tile.building.level).durability;
         const curDur = tile.building.durability ?? maxDur;
-        dur.textContent = 'HP: ' + curDur + '/' + maxDur;
-        const sens = document.createElement('div');
-        const sensLabel = tile.building.weatherSensitivity ?? getBuildingStats(tile.building.type, tile.building.level).sensitivity;
-        sens.textContent = 'Sens: ' + sensLabel;
-        stats.appendChild(maint);
-        stats.appendChild(dur);
-        stats.appendChild(sens);
-        div.appendChild(stats);
+        hp.appendChild(hpLabel);
+        const hpValue = document.createElement('div');
+        hpValue.textContent = curDur + '/' + maxDur;
+        hp.appendChild(hpValue);
+        buildingStats.appendChild(hp);
 
-        // add a small HP bar showing durability
+        const sens = document.createElement('div');
+        sens.className = 'stat-item';
+        const sensLabel = document.createElement('div');
+        sensLabel.className = 'stat-label';
+        sensLabel.textContent = 'SENS';
+        const sensValue = tile.building.weatherSensitivity ?? getBuildingStats(tile.building.type, tile.building.level).sensitivity;
+        sens.appendChild(sensLabel);
+        const sensValueDiv = document.createElement('div');
+        sensValueDiv.textContent = sensValue;
+        sens.appendChild(sensValueDiv);
+        buildingStats.appendChild(sens);
+
+        statsDiv.appendChild(buildingStats);
+
+        // HP bar
         const hpBar = document.createElement('div');
         hpBar.className = 'hp-bar';
         const hpFill = document.createElement('div');
         hpFill.className = 'hp-fill';
         const pct = Math.max(0, Math.min(100, Math.round((curDur / maxDur) * 100)));
         hpFill.style.width = pct + '%';
-        // color the fill depending on pct (override gradient for low hp)
+        // Color the fill depending on pct
         if (pct < 35) hpFill.style.background = 'linear-gradient(90deg,#f87171,#f43f5e)';
         else if (pct < 65) hpFill.style.background = 'linear-gradient(90deg,#f59e0b,#fbbf24)';
         hpBar.appendChild(hpFill);
-        div.appendChild(hpBar);
+        statsDiv.appendChild(hpBar);
 
-        // set hover tooltip with full details
+        div.appendChild(statsDiv);
+
+        // Set hover tooltip with full details
         const terrainModifier = getTerrainModifier(tile.terrain, tile.building.type);
         const adjacencyBonus = getAdjacencyBonus(tile.id);
-        const tooltip = `Terrain: ${tile.terrain} (x${terrainModifier.toFixed(2)})\nAdjacency: x${adjacencyBonus.toFixed(2)}\nType: ${buildingLabel(tile.building)}\nLevel: ${tile.building.level}\nBase Prod: ${buildingBaseProduction(tile.building)}\nMaintenance: ${buildingMaint}\nDurability: ${curDur}/${maxDur}\nSensitivity: ${sensLabel}`;
+        const tooltip = `Terrain: ${tile.terrain} (x${terrainModifier.toFixed(2)})\nAdjacency: x${adjacencyBonus.toFixed(2)}\nType: ${buildingLabel(tile.building)}\nLevel: ${tile.building.level}\nBase Prod: ${buildingBaseProduction(tile.building)}\nMaintenance: ${buildingMaint}\nDurability: ${curDur}/${maxDur}\nSensitivity: ${sensValue}`;
         div.title = tooltip;
       } else {
-        // ensure no tooltip for ruins
+        // Ensure no tooltip for ruins
         div.title = 'Ruins - Terrain: ' + tile.terrain;
       }
 
+      // Weather effects
       if (tile.effects.length > 0) {
         const eff = document.createElement('div');
         eff.className = 'tile-effects';
