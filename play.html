@@ -1,12 +1,134 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07111f"><meta name="description" content="Play Weather Wars, a turn-based strategy game of terrain, infrastructure, and forecast control."><title>Play — Weather Wars</title><link rel="manifest" href="/manifest.webmanifest"><link rel="stylesheet" href="/styles.css"></head>
-<body class="game-page"><main class="game-shell">
-  <header class="game-topbar"><a class="brand" href="/"><span class="brand-mark">W</span><span>WEATHER WARS</span></a><div class="turn-info">Turn <strong id="turn">1 / 10</strong> · <span id="phaseTop">Claim</span></div><div class="game-tools"><button class="icon-btn" id="soundBtn" aria-label="Toggle sound">Sound off</button><button class="icon-btn" id="newBtn">New game</button></div></header>
-  <div class="battle-layout"><section class="battle-main"><div class="rivals"><div class="rival"><div class="avatar" id="playerAvatar">AS</div><div class="rival-copy"><small>YOUR COMMANDER</small><strong id="playerName">Ava Storm</strong></div><div class="money">◈ <span id="playerMoney">200</span></div></div><div class="rival enemy"><div class="money">◈ <span id="enemyMoney">200</span></div><div class="rival-copy"><small>RIVAL COMMANDER</small><strong id="enemyName">Liam Frost</strong></div><div class="avatar" id="enemyAvatar">LF</div></div></div>
-  <div class="phase-banner"><b id="phaseTitle">Phase 1 · Claim territory</b><span id="phaseHelp">Select one unclaimed territory.</span></div><div class="board" id="board" aria-label="Weather Wars battlefield"></div>
-  <div class="action-dock"><div class="dock-head"><b id="dockTitle">Field options</b><span id="dockHint">Select an action, then choose a territory</span></div><div class="action-cards" id="cards"></div></div></section>
-  <aside class="inspector" id="inspector"><span class="inspector-label">FIELD INTELLIGENCE</span><h2 id="inspectTitle">Select a territory</h2><p id="inspectDesc">Review terrain, ownership, output, and active weather effects before committing your action.</p><div class="inspector-stats" id="inspectStats"></div><div class="commander-power"><strong id="powerName">Commander ability</strong><small id="powerDesc">A decisive once-per-game advantage.</small><button class="button button-secondary" id="powerBtn">Deploy ability</button></div><div class="message-log" id="message" role="status" aria-live="polite"></div><button class="button primary-action" id="nextBtn">Continue to building →</button></aside></div>
-  <section class="bottom-sheet" id="sheet"><button class="icon-btn close-sheet" id="closeSheet" aria-label="Close">×</button><span class="inspector-label">FIELD INTELLIGENCE</span><h2 id="sheetTitle"></h2><p id="sheetDesc"></p></section>
-</main>
-<div class="overlay" id="commanderOverlay"><section class="modal"><div class="modal-head"><p class="eyebrow">SELECT YOUR COMMANDER</p><h1>Choose your front.</h1><p>Each commander has one unique ability that can be deployed once per match.</p></div><div class="character-grid" id="characterGrid"></div><div class="modal-actions"><button class="button" id="startBtn" disabled>Begin campaign →</button></div></section></div>
-<div class="overlay hidden" id="resultOverlay"><section class="modal"><div class="modal-head"><p class="eyebrow">CAMPAIGN COMPLETE</p><h1 id="resultTitle">Victory</h1><p id="resultText"></p></div><div class="result-score" id="resultScore"></div><div class="modal-actions"><button class="button" id="replayBtn">Play again</button><a class="button button-secondary" href="/">Return home</a></div></section></div>
-<script src="/app.js"></script><script src="/game.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#075985">
+  <meta name="description" content="Play Weather Wars, a turn-based strategy game starring rival television meteorologists.">
+  <title>Live Game — Weather Wars</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="game-page">
+  <div class="game-broadcast-bar">
+    <span class="live-dot"></span><strong>WEATHER WARS LIVE</strong>
+    <span id="broadcastTicker">The forecast battle begins now</span>
+  </div>
+
+  <main class="game-shell">
+    <header class="game-topbar">
+      <a class="brand" href="/"><span class="brand-mark">WW</span><span><strong>Weather</strong> Wars</span></a>
+      <div class="turn-info"><small>LIVE ROUND</small><strong id="turn">1 / 10</strong><span id="phaseTop">Segment 1 of 3</span></div>
+      <div class="game-tools">
+        <button class="icon-btn" id="helpBtn">How to play</button>
+        <button class="icon-btn" id="soundBtn" aria-label="Toggle sound">Sound off</button>
+        <button class="icon-btn" id="newBtn">New game</button>
+      </div>
+    </header>
+
+    <div class="phase-stepper" id="phaseStepper" aria-label="Turn progress">
+      <div data-phase="claim"><span>1</span><div><small>REGION DESK</small><b>Claim</b></div></div>
+      <i></i>
+      <div data-phase="build"><span>2</span><div><small>BUSINESS DESK</small><b>Build</b></div></div>
+      <i></i>
+      <div data-phase="weather"><span>3</span><div><small>WEATHER DESK</small><b>Forecast</b></div></div>
+    </div>
+
+    <div class="coach-bar">
+      <span class="coach-number" id="coachNumber">1</span>
+      <div><small>YOUR NEXT MOVE</small><strong id="coachTitle">Claim one open region</strong><p id="coachText">Click any pulsing tile marked OPEN. You may claim one region each turn.</p></div>
+      <div class="coach-tip" id="coachTip"><b>Beginner tip</b><span>Look for matching terrain beside each other.</span></div>
+    </div>
+
+    <div class="battle-layout">
+      <section class="battle-main">
+        <div class="rivals">
+          <div class="rival">
+            <div class="avatar" id="playerAvatar">AS</div>
+            <div class="rival-copy"><small>YOUR WEATHER DESK</small><strong id="playerName">Ava Storm</strong><span id="playerRole">Chief Meteorologist</span></div>
+            <div class="money"><small>CREDITS</small><span id="playerMoney">200</span></div>
+          </div>
+          <div class="rival enemy">
+            <div class="money"><small>CREDITS</small><span id="enemyMoney">200</span></div>
+            <div class="rival-copy"><small>RIVAL WEATHER DESK</small><strong id="enemyName">Liam Frost</strong><span id="enemyRole">Winter Weather Specialist</span></div>
+            <div class="avatar" id="enemyAvatar">LF</div>
+          </div>
+        </div>
+
+        <div class="phase-banner">
+          <b id="phaseTitle">Segment 1 · Claim a region</b>
+          <span id="phaseHelp">Click one highlighted open region.</span>
+        </div>
+        <div class="board" id="board" aria-label="Weather Wars regional map"></div>
+
+        <div class="action-dock">
+          <div class="dock-head"><b id="dockTitle">Regional map</b><span id="dockHint">Choose a highlighted open region</span></div>
+          <div class="action-cards" id="cards"></div>
+        </div>
+      </section>
+
+      <aside class="inspector" id="inspector">
+        <span class="inspector-label">REGIONAL FORECAST</span>
+        <h2 id="inspectTitle">Select a region</h2>
+        <p id="inspectDesc">Click any map tile to see its terrain, owner, production, and active weather.</p>
+        <div class="inspector-stats" id="inspectStats"></div>
+        <div class="commander-power">
+          <small>SIGNATURE FORECAST · ONCE PER GAME</small>
+          <strong id="powerName">Meteorologist special</strong>
+          <span id="powerDesc">A decisive one-time advantage.</span>
+          <button class="button button-secondary" id="powerBtn">Go live with forecast</button>
+        </div>
+        <div class="message-log" id="message" role="status" aria-live="polite"></div>
+        <button class="button primary-action" id="nextBtn">Continue to building →</button>
+      </aside>
+    </div>
+
+    <section class="bottom-sheet" id="sheet">
+      <button class="icon-btn close-sheet" id="closeSheet" aria-label="Close">×</button>
+      <span class="inspector-label">REGIONAL FORECAST</span><h2 id="sheetTitle"></h2><p id="sheetDesc"></p>
+    </section>
+  </main>
+
+  <div class="overlay" id="commanderOverlay">
+    <section class="modal presenter-modal">
+      <div class="modal-head">
+        <div class="on-air-label"><span>CASTING DESK</span> WEATHER WARS NETWORK</div>
+        <h1>Choose your meteorologist.</h1>
+        <p>Each news personality has one signature forecast that can be used once during the ten-turn broadcast.</p>
+      </div>
+      <div class="character-grid" id="characterGrid"></div>
+      <div class="selection-help"><b>New here?</b> Pick any meteorologist—the game will walk you through your first turn.</div>
+      <div class="modal-actions"><button class="button" id="startBtn" disabled>Go live →</button></div>
+    </section>
+  </div>
+
+  <div class="overlay hidden" id="tutorialOverlay">
+    <section class="modal tutorial-modal">
+      <button class="modal-close" id="tutorialClose" aria-label="Close tutorial">×</button>
+      <div class="modal-head">
+        <p class="eyebrow">YOUR FIRST BROADCAST</p>
+        <h1>Three moves. That’s one turn.</h1>
+        <p>The game highlights every legal choice. Follow the segments from left to right.</p>
+      </div>
+      <div class="tutorial-steps">
+        <article><span>1</span><div class="tutorial-icon">⌖</div><h2>Claim</h2><p>Click one pulsing <b>OPEN</b> region. It becomes blue and belongs to your weather desk.</p></article>
+        <article><span>2</span><div class="tutorial-icon">▦</div><h2>Build</h2><p>Choose a building card, then click an empty blue region. Buildings earn credits every turn.</p></article>
+        <article><span>3</span><div class="tutorial-icon">☀</div><h2>Forecast</h2><p>Choose a weather card. Helpful cards target blue regions; severe weather targets red rivals.</p></article>
+      </div>
+      <div class="win-rule"><strong>How to win</strong><span>After turn 10, the weather desk with the most credits wins.</span></div>
+      <div class="modal-actions"><button class="button" id="tutorialStart">Start segment one →</button></div>
+    </section>
+  </div>
+
+  <div class="overlay hidden" id="resultOverlay">
+    <section class="modal">
+      <div class="modal-head"><p class="eyebrow">FINAL BROADCAST</p><h1 id="resultTitle">Forecast victory</h1><p id="resultText"></p></div>
+      <div class="result-score" id="resultScore"></div>
+      <div class="modal-actions"><button class="button" id="replayBtn">Broadcast again</button><a class="button button-secondary" href="/">Return home</a></div>
+    </section>
+  </div>
+
+  <script src="/app.js"></script>
+  <script src="/game.js"></script>
+</body>
+</html>

@@ -3,56 +3,125 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#07111f">
-  <meta name="description" content="Command the forecast, build a resilient city, and outsmart a rival in Weather Wars.">
-  <meta property="og:title" content="Weather Wars — Command the Forecast">
-  <meta property="og:description" content="Own the land. Command the sky.">
+  <meta name="theme-color" content="#075985">
+  <meta name="description" content="Weather Wars is a turn-based strategy game where rival meteorologists build cities and battle with the forecast.">
+  <meta property="og:title" content="Weather Wars — Take Control of the Forecast">
+  <meta property="og:description" content="Build your region, deliver the forecast, and outscore the rival weather desk.">
+  <meta property="og:image" content="/og-broadcast.jpg">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <title>Weather Wars — Command the Forecast</title>
+  <title>Weather Wars — Take Control of the Forecast</title>
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body class="landing">
+  <div class="weather-ticker" aria-label="Live weather ticker">
+    <span class="live-dot"></span><strong>LIVE WEATHER DESK</strong>
+    <span>New York 24°</span><span>Chicago 19°</span><span>London 16°</span><span>Tokyo 27°</span>
+  </div>
+
   <header class="site-nav">
-    <a class="brand" href="/" aria-label="Weather Wars home"><span class="brand-mark">W</span><span>WEATHER WARS</span></a>
-    <nav aria-label="Primary navigation"><a href="/how-to-play.html">How to play</a><a class="button button-small" href="/play.html">Play now</a></nav>
+    <a class="brand" href="/" aria-label="Weather Wars home">
+      <span class="brand-mark">WW</span>
+      <span><strong>Weather</strong> Wars</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="#how-it-works">How it works</a>
+      <a href="/how-to-play.html">Game guide</a>
+      <a class="button button-small" href="/play.html">Play the forecast</a>
+    </nav>
   </header>
 
   <main>
-    <section class="hero">
-      <div class="storm-orb storm-orb-one"></div><div class="storm-orb storm-orb-two"></div>
+    <section class="broadcast-hero">
       <div class="hero-copy">
-        <p class="eyebrow">TURN-BASED WEATHER STRATEGY</p>
-        <h1>Own the land.<br><em>Command the sky.</em></h1>
-        <p class="hero-lede">Build a climate-resilient economy, weaponize the forecast, and outthink your rival before the tenth turn.</p>
-        <div class="hero-actions"><a class="button" href="/play.html">Enter the battlefield <span>→</span></a><a class="text-link" href="/how-to-play.html">Learn the rules</a></div>
-        <div class="hero-proof"><span><strong>10</strong> strategic turns</span><span><strong>16</strong> contested territories</span><span><strong>10</strong> weather commanders</span></div>
-      </div>
-      <div class="hero-board" aria-label="Stylized Weather Wars battlefield preview">
-        <div class="forecast-line">LIVE FRONT <span>STORM CELL 04</span></div>
-        <div class="mini-grid">
-          <div class="mini-tile grass"><span>🌾</span><b>+24</b></div><div class="mini-tile water enemy"><span>💨</span><b>+14</b></div><div class="mini-tile mountain"><span>⛰️</span><b>+45</b></div><div class="mini-tile desert enemy"><span>☀️</span><b>+45</b></div>
-          <div class="mini-tile water"><span>🌧️</span><b>1.2×</b></div><div class="mini-tile storm"><span>⚡</span><b>-12</b></div><div class="mini-tile grass enemy"><span>🏭</span><b>+40</b></div><div class="mini-tile mountain"><span>⛏️</span><b>+45</b></div>
-          <div class="mini-tile desert"><span>🔆</span><b>+45</b></div><div class="mini-tile grass"><span>🌱</span><b>OPEN</b></div><div class="mini-tile water enemy"><span>🌫️</span><b>0.9×</b></div><div class="mini-tile mountain enemy"><span>🔬</span><b>+16</b></div>
+        <div class="on-air-label"><span>ON AIR</span> A WEATHER STRATEGY GAME</div>
+        <h1>The forecast<br>is <em>yours.</em></h1>
+        <p class="hero-lede">Become an on-air meteorologist, grow your region, and use the weather to outsmart a rival news desk over ten fast turns.</p>
+        <div class="hero-actions">
+          <a class="button" href="/play.html">Choose your meteorologist <span>→</span></a>
+          <a class="text-link" href="#how-it-works">See how a turn works</a>
         </div>
-        <div class="forecast-card"><span>⚡</span><div><small>WEATHER POWER</small><strong>Lightning Strike</strong></div><b>45</b></div>
+        <p class="hero-note">No download · Saves automatically · About 10 minutes</p>
+      </div>
+
+      <div class="broadcast-monitor" aria-label="Weather Wars game preview">
+        <div class="monitor-header">
+          <div><span class="live-dot"></span> WEATHER WARS LIVE</div>
+          <span>TURN 4 / 10</span>
+        </div>
+        <div class="monitor-body">
+          <div class="radar-map">
+            <div class="radar-ring ring-one"></div>
+            <div class="radar-ring ring-two"></div>
+            <div class="radar-sweep"></div>
+            <div class="radar-cell cell-one">⛈</div>
+            <div class="radar-cell cell-two">🌧</div>
+            <div class="radar-city city-one">NORTH</div>
+            <div class="radar-city city-two">COAST</div>
+          </div>
+          <div class="forecast-stack">
+            <div class="forecast-metric"><small>YOUR DESK</small><strong>286</strong><span>credits</span></div>
+            <div class="forecast-metric rival-metric"><small>RIVAL DESK</small><strong>241</strong><span>credits</span></div>
+            <div class="next-broadcast"><small>NEXT SEGMENT</small><b>Deliver the forecast</b><span>Choose a card, then a glowing region.</span></div>
+          </div>
+        </div>
+        <div class="broadcast-lower-third">
+          <span class="lower-number">3</span>
+          <div><small>NOW PLAYING</small><strong>Severe Weather Round</strong></div>
+          <span class="lower-weather">⚡ 45</span>
+        </div>
       </div>
     </section>
 
-    <section class="feature-strip" aria-label="Game loop">
-      <article><span>01</span><div><h2>Claim</h2><p>Read the terrain and seize the right territory.</p></div></article>
-      <article><span>02</span><div><h2>Build</h2><p>Match industries to biomes for production bonuses.</p></div></article>
-      <article><span>03</span><div><h2>Disrupt</h2><p>Cast weather fronts to boost allies or break rivals.</p></div></article>
+    <section class="how-section" id="how-it-works">
+      <header class="section-heading">
+        <p class="eyebrow">WEATHER WARS IN 30 SECONDS</p>
+        <h2>Every turn has three simple segments.</h2>
+        <p>Follow the on-screen prompt from left to right. The game highlights every move you can make.</p>
+      </header>
+      <div class="three-steps">
+        <article>
+          <div class="step-icon map-icon">⌖</div>
+          <span>SEGMENT 1</span>
+          <h3>Claim a region</h3>
+          <p>Click one glowing open tile. Matching neighboring terrain earns a production bonus.</p>
+        </article>
+        <article>
+          <div class="step-icon build-icon">▦</div>
+          <span>SEGMENT 2</span>
+          <h3>Build your economy</h3>
+          <p>Choose a building card, then place it on one of your regions. Better terrain means more income.</p>
+        </article>
+        <article>
+          <div class="step-icon weather-icon">☀</div>
+          <span>SEGMENT 3</span>
+          <h3>Deliver the forecast</h3>
+          <p>Use helpful weather on your tiles or severe weather on the rival. Finish turn ten with more credits.</p>
+        </article>
+      </div>
+      <a class="button button-center" href="/play.html">Start your first broadcast →</a>
     </section>
 
-    <section class="world-section">
-      <div><p class="eyebrow">EVERY FORECAST IS A WEAPON</p><h2>A strategy game where the map never stays quiet.</h2></div>
-      <p>Mountains amplify wind and mining. Deserts supercharge solar. Connected terrain compounds your advantage—but a single storm can turn a perfect plan into a costly recovery.</p>
-      <a class="button button-secondary" href="/play.html">Start a new campaign</a>
+    <section class="announcer-section">
+      <div class="announcer-copy">
+        <p class="eyebrow">MEET THE WEATHER DESK</p>
+        <h2>Your meteorologist changes the forecast.</h2>
+        <p>Every on-air personality brings one signature forecast. Save it for the moment that can swing the broadcast.</p>
+        <a class="text-link" href="/play.html">Meet all 10 meteorologists</a>
+      </div>
+      <div class="anchor-lineup" aria-label="Featured meteorologists">
+        <article><div class="anchor-avatar blue">⛈</div><span>CHIEF METEOROLOGIST</span><strong>Ava Storm</strong><small>Metro 8 · New York</small></article>
+        <article><div class="anchor-avatar gold">☀</div><span>MORNING METEOROLOGIST</span><strong>Sophia Ray</strong><small>Pacific 7 · Los Angeles</small></article>
+        <article><div class="anchor-avatar red">⚡</div><span>SEVERE WEATHER ANCHOR</span><strong>Ethan Thunder</strong><small>Weather One · Tokyo</small></article>
+      </div>
     </section>
   </main>
-  <footer><a class="brand" href="/"><span class="brand-mark">W</span><span>WEATHER WARS</span></a><span>Built for the next front.</span></footer>
+
+  <footer>
+    <a class="brand" href="/"><span class="brand-mark">WW</span><span><strong>Weather</strong> Wars</span></a>
+    <span>Tonight’s forecast: strategic.</span>
+  </footer>
   <script src="/app.js" defer></script>
 </body>
 </html>
