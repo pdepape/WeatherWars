@@ -6,6 +6,7 @@ const contentTypes={html:'text/html; charset=utf-8',css:'text/css; charset=utf-8
 await rm('dist',{recursive:true,force:true});
 await mkdir('dist/server',{recursive:true});
 await mkdir('dist/.openai',{recursive:true});
+await mkdir('dist/weather-presenters',{recursive:true});
 
 const bundled={};
 for(const file of textFiles){
@@ -17,6 +18,15 @@ for(const file of textFiles){
 const socialCard=await readFile('public/og-broadcast.jpg');
 await copyFile('public/og-broadcast.jpg','dist/og-broadcast.jpg');
 bundled['/og-broadcast.jpg']={base64:socialCard.toString('base64'),type:'image/jpeg'};
+
+for(let index=1;index<=10;index++){
+  const name=`presenter-${String(index).padStart(2,'0')}.webp`;
+  const source=`public/weather-presenters/${name}`;
+  const portrait=await readFile(source);
+  if(portrait.byteLength>25_000)throw new Error(`${name} is too large to bundle`);
+  await copyFile(source,`dist/weather-presenters/${name}`);
+  bundled[`/weather-presenters/${name}`]={base64:portrait.toString('base64'),type:'image/webp'};
+}
 bundled['/']=bundled['/index.html'];
 
 const worker=`const FILES=${JSON.stringify(bundled)};
