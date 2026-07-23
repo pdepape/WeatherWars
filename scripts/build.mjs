@@ -33,9 +33,10 @@ const worker=`const FILES=${JSON.stringify(bundled)};
 const decode=(value)=>Uint8Array.from(atob(value),character=>character.charCodeAt(0));
 export default {async fetch(request){
   const url=new URL(request.url);
-  const file=FILES[url.pathname];
+  const assetPath=url.pathname==='/public/og-broadcast.jpg'?'/og-broadcast.jpg':url.pathname.startsWith('/public/weather-presenters/')?url.pathname.slice(7):url.pathname;
+  const file=FILES[assetPath];
   if(!file)return new Response('Not found',{status:404,headers:{'content-type':'text/plain; charset=utf-8'}});
-  return new Response(file.base64?decode(file.base64):file.body,{status:200,headers:{'content-type':file.type,'cache-control':url.pathname.endsWith('.html')||url.pathname==='/'?'no-cache':'public, max-age=3600'}});
+  return new Response(file.base64?decode(file.base64):file.body,{status:200,headers:{'content-type':file.type,'cache-control':url.pathname.endsWith('.html')||url.pathname==='/'||url.pathname.endsWith('/sw.js')?'no-cache':'public, max-age=3600'}});
 }};`;
 
 await writeFile('dist/server/index.js',worker);

@@ -1,1 +1,1 @@
-{"name":"Weather Wars","short_name":"WeatherWars","description":"A retro pixel strategy game starring rival television meteorologists.","start_url":"/play.html","display":"standalone","background_color":"#071436","theme_color":"#071436","icons":[]}
+{"name":"Weather Wars","short_name":"WeatherWars","description":"A retro pixel strategy game starring rival television meteorologists.","start_url":"./play.html","scope":"./","display":"standalone","background_color":"#071436","theme_color":"#071436","icons":[]}

@@ -17,7 +17,7 @@ const COMMANDERS=[
 ];
 const SAVE='weather-wars-save-v3';const TUTORIAL='weather-wars-tutorial-seen';let state,selectedAction=null,selectedTile=null;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-function presenterSource(person){const index=COMMANDERS.find(c=>c.name===person.name)?.portrait||person.portrait||1;return `/weather-presenters/presenter-${String(index).padStart(2,'0')}.webp`}
+function presenterSource(person){const index=COMMANDERS.find(c=>c.name===person.name)?.portrait||person.portrait||1;return `./public/weather-presenters/presenter-${String(index).padStart(2,'0')}.webp`}
 function applyPresenter(node,person){node.textContent='';node.classList.add('pixel-presenter');node.style.backgroundImage=`url("${presenterSource(person)}")`;node.setAttribute('role','img');node.setAttribute('aria-label',`${person.name}, ${person.role}`)}
 function fresh(commander){const terrains=Object.keys(TERRAIN);return{turn:1,maxTurns:10,phase:'claim',claimedThisTurn:false,playerMoney:200,enemyMoney:200,commander,rival:COMMANDERS.filter(c=>c.name!==commander.name)[Math.floor(Math.random()*9)],powerUsed:false,boost:null,enemyBlocked:false,tiles:Array.from({length:16},(_,id)=>({id,terrain:terrains[Math.floor(Math.random()*4)],owner:null,building:null,effects:[]})),hand:drawHand(),message:'Welcome to the live map. Start by clicking one pulsing OPEN region.'}}
 function drawHand(){return [...POWERS].sort(()=>Math.random()-.5).slice(0,3).map(p=>p.id)}function save(){localStorage.setItem(SAVE,JSON.stringify(state))}function load(){try{const s=JSON.parse(localStorage.getItem(SAVE));return s?.tiles?.length===16?s:null}catch{return null}}
